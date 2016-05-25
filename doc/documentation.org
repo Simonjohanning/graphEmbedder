@@ -1,0 +1,75 @@
+* Background / purpose
+This program has been developed in the context of the course /Advanced Methods in Bioinformatics/ at the University of Leipzig.
+It serves provide spatial parameters ($\R^{3}$) for molecule embeddings.
+It takes bond lengths and angles between atoms of these molecules as [[parameters]], and a molecular graph as [[input data]].
+For these input data, this program will find one (or several) minimal (wrt. the [[force field embedding]] function) embedding.
+
+The tool is a command line tool that can be embedded in linux pipelines. It has been tested on the following systems...
+
+* Idea
+The idea behind the program is to analyze the molecular graph and to find a minimal rigid subgraph that can be embedded into the target space uniquely.
+A generic minimal rigid graph requires that graph not to have any stressed subgraph, meaning that these are minimally rigid as well (thus non-stressed subgraphs).
+In the 3-dimensional case, this means that the minimally rigid subgraph has 6*n-6 edges (where n is the number of atoms in the molecule and an edges corresponds to a molecular bond), and all of its subgraphs have 6*$\hat{n}$-6 edges (with $\hat{n}$ being the number of nodes in the induced subgraph).
+This basically means that the graph is (6,6)-sparse.
+
+The latter condition yields an independent set of edges that can be understood as a (maximal) independence set of a matroid.
+
+The connection between rigidity and sparsity of graphs is as follows:
+
+G is (k,l)-rigid \Leftrightarrow G=(V,F) has a spanning (k,l)-sparse subgraph \hat{G}=(V,E) with E \subset F,
+
+whereas the edges in F\E are redundant edges that only cause (mechanical) stress. 
+As such, E is a (k,l)-sparsity matroid (a basis).
+
+E is called (k,l)-sparsity-independent if \forall B \subset E:
+
+$|B| \leq k*|V(B)|-l$ with V(B) as node set spanned by B
+
+* Program components
+** construction of minimally rigid subgraphs
+In order to generate minimally rigid subgraphs, a graph is constructed from the given graph G(V,E) with an independent subset $\hat{E}$ \subset E, namely the graph G(V,$\hat{E}$).
+Since G(V,E) is a graph matroid, we can simply use a greedy algorithm to construct \hat{E}.
+For this, we iterate over all edges e (starting with $\hat{E}$ = \emptyset) and replace it with \hat{E} \union e, if this set is independent.
+In order to test the independence of the set $\hat{E} \union$ e, we make use of the (6,6)-[[pebble game]], which determines the independence of the given edge set.
+If |$\hat{E}$| = 6|V|-6 at some point, or all edges have been iterated over, the rigidity of the graph is determined (on whether the graph has 6|V|-6 edges).
+
+** pebble game
+A pebble game is an algorithm to determine the independence of an edge set within a given graph.
+It balances the degrees of freedom[fn:1] and the constrains introduced through the introduction of edges. 
+
+** test graph generation
+The test graph generation is split into three parts. 
+One part of the test (and example) graphs are the [[Henneberg test graphs]], another kind are the [[pdb test graphs]] and finally there is a bunch of [[miscellaneous test graphs]].
+These graphs were used to test the system and provide the user with a bunch of (tested!) graphs where graph embeddings could be derived.
+
+*** Henneberg test graphs
+The Henneberg test graphs are graphs derived through the /Henneberg construction/.
+For this construction, a graph is constructed from a K_{2} (fully connected graph with 2 edges), to which nodes were added iteratively.
+Nodes were added as *type1* nodes or *type2* nodes, as follows
+
+*type1 construction*:
+#+begin_example
+connect node with two existing nodes via two new edges
+#+end_example
+
+*type2 construction*:
+#+begin_example
+	find three nodes u,v,w with at least one edge in the induced subgraph G[u,v,w]
+	connect new node with u,v, and w and delete an edge in G[u,v,w]
+#+end_example
+
+*** pdb test graphs
+The /pdb test graphs/ are real-world molecular graphs taken from the [[www.rcsb.orgpdb/home/home.do][protein data bank website]].
+
+*** miscellaneous test graphs
+These are a class of graphs that were used to test some key ideas.
+They were small, manually constructed graphs intended to test specific behaviour of the program.
+ 
+
+
+
+
+
+[fn:1] In 3D space, there are 6 degrees of freedom, namely three translations (one for each dimension of the space), two rotations (along the xy-plane and the yz-plane), as well as the reflection
+
+
