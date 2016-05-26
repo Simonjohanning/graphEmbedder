@@ -1,6 +1,6 @@
 * Background / purpose
 This program has been developed in the context of the course /Advanced Methods in Bioinformatics/ at the University of Leipzig.
-It serves provide spatial parameters ($\R^{3}$) for molecule embeddings.
+It serves provide spatial parameters ($\mathbb{R}^{3}$) for molecule embeddings.
 It takes bond lengths and angles between atoms of these molecules as [[parameters]], and a molecular graph as [[input data]].
 For these input data, this program will find one (or several) minimal (wrt. the [[force field embedding]] function) embedding.
 
@@ -31,11 +31,34 @@ In order to generate minimally rigid subgraphs, a graph is constructed from the 
 Since G(V,E) is a graph matroid, we can simply use a greedy algorithm to construct \hat{E}.
 For this, we iterate over all edges e (starting with $\hat{E}$ = \emptyset) and replace it with \hat{E} \union e, if this set is independent.
 In order to test the independence of the set $\hat{E} \union$ e, we make use of the (6,6)-[[pebble game]], which determines the independence of the given edge set.
-If |$\hat{E}$| = 6|V|-6 at some point, or all edges have been iterated over, the rigidity of the graph is determined (on whether the graph has 6|V|-6 edges).
+If $|\hat{E}|$ = 6|V|-6 at some point, or all edges have been iterated over, the rigidity of the graph is determined (on whether the graph has 6|V|-6 edges).
 
 ** pebble game
 A pebble game is an algorithm to determine the independence of an edge set within a given graph.
 It balances the degrees of freedom[fn:1] and the constrains introduced through the introduction of edges. 
+For the three-dimensional case, a pebble game is instantiated on the empty graph D=(V,$\emptyset$).
+Every node is associated with a number of k /pebbles/ (for the /k/-pebble game[fn:2]).
+For inserting edges the following moves can be performed:
+
+#+begin_example
+insert edge uv (with u,v \in V, uv \in E): if there are at least l+1 pebbles at u and v (where u is the source of the edge to be inserted), insert the edge uv in D and remove a pebble from u (if all pebbles are located at v, remove one there and insert the edge vu.
+#+end_example
+
+#+begin_example
+pebble collection: if there are not enough pebbles in u, an edge uv \in E can only be inserted if an edges is acquired.
+Thus, a path from nodes u or v to a node w with a pebble [fn:3] has to be found. 
+If such a path is found, the pebble on w is removed and the edges along the directed path inverted (i.e. e_{i}=w_{i}w_{i+1} (w_{n+1} = u \vee w_{n+1} = v) is removed and $\hat{e_{i}}$=w_{i+1}w_{i} is inserted in D).
+#+end_example
+
+These operations are executed until for all edges it is decided whether they are included in D or not.
+The set of edges included now form a (k,l)-sparsity independent set (in our 3D-case (k,l)=(6,6)).
+
+
+** block construction
+In this context a /block/ is defined as a (k,l)-sparse independend subgraph G^{\prime} with |E^{\prime}|=k*|V^{\prime}|-l edges (thus a (k,l)-sparsity rigid subgraph),
+and a /sparsity-component/ is defined as a maximal (wrt. \subset) block.
+For blocks the following equivalence holds:
+V^{\prime} spans a block \Leftrigharrow #pebbles in V^{\prime} + #number of edges from V^{\prime} to V\V^{\prime} = l.
 
 ** test graph generation
 The test graph generation is split into three parts. 
@@ -71,5 +94,5 @@ They were small, manually constructed graphs intended to test specific behaviour
 
 
 [fn:1] In 3D space, there are 6 degrees of freedom, namely three translations (one for each dimension of the space), two rotations (along the xy-plane and the yz-plane), as well as the reflection
-
-
+[fn:2] where k=6 for (6,6)-sparsity graphs which are used in the three-dimensional case
+[fn:3] i.e. w \in Reach(u,v) = {\hat{w} | \exists e_{1},....,e_{k} with e_{1}...e_{k} form a directed path from \hat{w} to u or \hat{w} to v, i.e. target(e_{k}) = u \vee target(e_{k}) = v}
