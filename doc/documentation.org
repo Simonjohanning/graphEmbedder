@@ -26,6 +26,13 @@ E is called (k,l)-sparsity-independent if \forall B \subset E:
 $|B| \leq k*|V(B)|-l$ with V(B) as node set spanned by B
 
 * Program components
+Overview:
+After the input data has been read in and put into the iternal [[graph format]], the rigid components of the graph are identified.
+This is done via the (6,6)-[[pebble game]].
+Subsequently, these components are [[graph embedding][embedded]] in three-dimensiopnal space.
+For this, rigid & redundant subgraphs are uniquely embedded in space.
+
+In the latter step, for finding minimally rigid graphs, a set W \subset V of the nodes of the graph is seeked that is maximal wrt. set inclusion (\subset).
 ** construction of minimally rigid subgraphs
 In order to generate minimally rigid subgraphs, a graph is constructed from the given graph G(V,E) with an independent subset $\hat{E}$ \subset E, namely the graph G(V,$\hat{E}$).
 Since G(V,E) is a graph matroid, we can simply use a greedy algorithm to construct \hat{E}.
@@ -53,13 +60,49 @@ If such a path is found, the pebble on w is removed and the edges along the dire
 These operations are executed until for all edges it is decided whether they are included in D or not.
 The set of edges included now form a (k,l)-sparsity independent set (in our 3D-case (k,l)=(6,6)).
 
-
+Computationally, this algorithm is further optimized by quicker recognition of dependend edges (which get rejected, but still take O($\hat{E}(D)) time) through analyzing rigid components (see [[rigid component recognition]])
 ** block construction
-In this context a /block/ is defined as a (k,l)-sparse independend subgraph G^{\prime} with |E^{\prime}|=k*|V^{\prime}|-l edges (thus a (k,l)-sparsity rigid subgraph),
+In this context a /block/ is defined as a (k,l)-sparse independend subgraph G^{\prime} with |E^{\prime}|=k*|V^{\prime}|-l edges (thus a (k,l)-sparsity rigid ((k,l)-tight) subgraph),
 and a /sparsity-component/ is defined as a maximal (wrt. \subset) block.
 For blocks the following equivalence holds:
 V^{\prime} spans a block \Leftrigharrow #pebbles in V^{\prime} + #number of edges from V^{\prime} to V\V^{\prime} = l.
 
+
+** rigid component recognition
+Since blocks are rigid subgraphs already, the pebble game can be optimized by identifying whether the pebble collection part of the algorithm tries to determine whether the edge under consideration should be inserted in a block.
+In this case, the edge will be rejected, since the block is a rigid subgraph already, and the pebble collection step will not yield any new information.
+
+For this, (k,l)-sparsity components are identified.
+A /(k,l)-sparsity component/ is a block that is maximal wrt. a vertex set, meaning that it does not contain another block itself.
+
+Thus a rigid graph has only one sparsity component, and a non-rigid graph can be described through its sparsity components.
+The pebble game can thus be optimized by identifying sparsity components during its run. 
+In order to achieve this, consider the following observation:
+#+begin_example
+Every sparsity component is connected and every sparsity component has exactly l pebbles
+#+end_example
+Thus, as soon as the pebble collection fails, the entire connected component is sparse, and no edges in the same connected component need to be considered anymore, which leads to the following algorithm:
+#+begin_example
+for all edges e=uv:
+	u,v already in the same component: reject edge
+	peb(u)+peb(v) \geq l+1: 
+		insert edge in D
+		reduce peb(u) or peb(v) by 1
+		orient edge in D
+	otherwise collect pebbles:
+		if successful see above (free edge / no block)
+		if unsuccessful reject edge
+	find component u & v are part of
+	remove all components that are part of the generated component
+#+end_example
+In order to find the components u & v are part of, construct the vertex set V^{\prime\prime} as follows:
+#+begin_example
+V^{\prime\prime} = \emptyset
+for all vertices w not reachable from u or v:
+	if w has a pebble: add all nodes that can reach w to V^{\prime\prime}
+#+end_example
+The component of u and v now is V\V^{\prime\prime}, since V^{\prime\prime} is the set of nodes a pebble can be transported to.
+Thus the set V\V^{\prime\prime} needs to be rigid. This set is maximal, since all nodes not in this set can acquire pebbles.
 ** test graph generation
 The test graph generation is split into three parts. 
 One part of the test (and example) graphs are the [[Henneberg test graphs]], another kind are the [[pdb test graphs]] and finally there is a bunch of [[miscellaneous test graphs]].
@@ -88,11 +131,78 @@ The /pdb test graphs/ are real-world molecular graphs taken from the [[www.rcsb.
 These are a class of graphs that were used to test some key ideas.
 They were small, manually constructed graphs intended to test specific behaviour of the program.
  
+** graph embedding
+The program aims to solve the [[https://scholar.google.com/citations?view_op=view_citation&hl=es&user=quMILWkAAAAJ&citation_for_view=quMILWkAAAAJ:IjCSPb-OGe4C][molecule problem]] for a given graph, that is to find a realization p:V \to \mathbb{R}^{3}.
+In order to achieve this, the force field embedding F(p) = \sum_{e_{ij} \in E} (|p_{i}-p_{j}|^2 - d_{ij}^2)^2 is minimized, where
+#+begin_example
+e_{ij} is the (oriented) edge from node i \in V to node j \in V
+p is the realization for the nodes v \to \mathbb{R}^{3}
+d_{ij} is the measured distance between atoms i and j in the molecule graph
+#+end_example
+In order to this, the following steps are taken:
+#+begin_example
+Find a maximal, realizable, unique subgraph that is sufficiently small
+	For this every vertex needs to have at least 4 outgoing edges
+	The graph needs to be redundantly rigid
+For every sufficiently graph, the positions are set as given in the minimization of F
+For not sufficiently small graphs, the problem is recursively broken down in smaller subproblems
+#+end_example
+In order to achieve maximal uniqueness, the following algorithm is executed:
+#+begin_src python
+if G \equiv K_{5,5}: 
+	no unique subgraph can be found (recursion is stopped)
+else if graph is not 4-connected: 
+	the problem is addressed recursively on 4-connected subgraphs
+else if graph is not redundantly rigid: 
+	problem is address on redundant rigid subgraphs
+else if suffience condition holds (see below): 
+	graph is unique
+else 
+	some /interesting/ graph is found and reported[fn:4]
+#+end_src 
+In order to find redundant rigid compoenents the following algorithm is applied:
+#+begin_example
+find a maximal set of redundant edges via QR decomposition
+find a basis for remaining flexes[fn:5] via QR decomposition[fn:6]
+\forall 3-cliques x,y,z in the induced graph that v is not part of, it can be added if it has induced edges to x,y,z
+#+end_example
+Through this algorithm a graph can be decomposed in its redundant rigid components. 
+To arrive at a rigid graph again, the subgraphs have to be recombined agained. 
+This is achieved through [[combinatorial positioning]]
+
+For the application of molecule embedding given the bond angles and bond lengths, the force field embedding is modified as follows:
+f(x) = \sum_{e_{ij} \in E} \kappa ((x_{i} - x_{j})^2 - r_{e}^{2})^{2} + \kappa^{\prime} \sum_{\alpha = (i j k)} <(x_{i} - x_{j}),(x_{k} - x_{j})>
+= \sum_{e_{ij} \in E} \kappa ((x_{i} - x_{j})^2 - r_{e}^{2})^{2} + \kappa^{\prime} \sum_{\alpha = (i j k)} \cos(\alpha)
+#+begin_example
+\kappa: parameter to weigh the importance of bond length 
+\kappa^{\prime}: parameter to weigh the importance of bond angles
+r_{e}: length of bond of edge e = e_{ij} between atom represented by node i and atom represented by node j
+\alpha = (i j k): The angle between the edge e_{ij} and e_{jk} (the angles of the three atom represented by these nodes on point j)
+#+end_example
+With this force field we can assess how good embeddings are relative to given parameters (such as bond angle etc.).
+The force field embedding is done via a library (tbc).
+If the graph to be embedded is rigid and non-redundant, an optimimal (f-)minimal embedding exists, if the graph is overdetermined, a residiual stress will remain.
+
+In the case of maximally rigid subsets, [[block][blocks]] will remain.
+
+*** combinatorial positioning
+For the combinatorial positioning, the /chunks/ of a graph are combined. 
+Chunks of a graph are subgraph that share some vertices on which they are 'glued' to one another.
+For the three-dimensional case, chunks that share 4 nodes are needed assumed that no linear dependencies between the nodes exist.
+In this case, the chunks fit uniquely and rigidly, thus there is only a single possibility as for how these graphs can be glued together.
+If chunks share only three nodes, one chunk can also be reflected, thus doubling the potential embeddings, leading to an exponential combinatorial explosion.
 
 
 
+* Theory
+* Implementation
+* Glossary
+** block
 
 
 [fn:1] In 3D space, there are 6 degrees of freedom, namely three translations (one for each dimension of the space), two rotations (along the xy-plane and the yz-plane), as well as the reflection
 [fn:2] where k=6 for (6,6)-sparsity graphs which are used in the three-dimensional case
 [fn:3] i.e. w \in Reach(u,v) = {\hat{w} | \exists e_{1},....,e_{k} with e_{1}...e_{k} form a directed path from \hat{w} to u or \hat{w} to v, i.e. target(e_{k}) = u \vee target(e_{k}) = v}
+[fn:4] graphs that conform to necessary conditions, but don't fulfil sufficient conditions have not been observed by the authors of the molecule problem and are potentially interesting
+[fn:5] flexes are pairs /ij/ for which ((v_{i}-v_{j})(p_{i}-p_{j})=0) holds, and thus indicate which vertices can be bent. If a graph doesn't have flexes anymore, the vertices are not relocatable anymore (relative to one another)
+[fn:6] if nodes are rigid relative to a subgraph, missing edges can be added, since a point has fixes coordinates relative to point corresponding to nodes in that subgraph
