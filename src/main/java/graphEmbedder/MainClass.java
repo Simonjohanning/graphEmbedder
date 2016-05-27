@@ -1,4 +1,11 @@
-package  projectName
+package graphEmbedder;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import java.io.IOException;
+import java.util.*;
+
+import graphEmbedder.IO.ConfigLoader;
 
 /**
  * Initializes and starts the program. Serves as entry point for the program
@@ -57,12 +64,12 @@ public class MainClass{
             //load configurations using the ConfigLoader
             configurations = ConfigLoader.loadConfigurationStringmap(configPath+"configurations/configurations.json");
             for(String key : configurations.keySet()){
-                LOG.info("Reading configuration: "+key+": "+configurations.get(key));
+                initLogger.info("Reading configuration: "+key+": "+configurations.get(key));
             }
-            LOG.info("configurations: "+configurations.toString());
+            initLogger.info("configurations: "+configurations.toString());
             return configurations;
         } catch (IOException e) {
-            LOG.error("Could not load file configurations/configurations.json. IOException: "+e);
+            initLogger.error("Could not load file configurations/configurations.json. IOException: "+e);
             e.printStackTrace();
             throw e;
         }

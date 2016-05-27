@@ -1,4 +1,4 @@
-package projectName.IO;
+package graphEmbedder.IO;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;

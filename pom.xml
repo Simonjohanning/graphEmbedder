@@ -33,18 +33,17 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.6</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
 					</execution>
 				</executions>
 				<configuration>
-				<!--	<useDefaultManifestFile>true</useDefaultManifestFile> -->
+					<!--<useDefaultManifestFile>true</useDefaultManifestFile>-->
 					<archive>
 						<manifest>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix>
+							<!--<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>-->
 							<mainClass>graphEmbedder.MainClass</mainClass>
 						</manifest>
 					</archive>
