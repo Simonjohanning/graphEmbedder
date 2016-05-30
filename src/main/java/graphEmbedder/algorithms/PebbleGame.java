@@ -1,12 +1,8 @@
 package graphEmbedder.algorithms;
 
-import graph.myNode;
-import graph.myEdge;
-import graph.myComponent;
-import graph.Graph;
-import graph.Node;
-import graph.Edge;
-import graph.Component;
+import graphEmbedder.IO.PebbleGameReader;
+import graphEmbedder.graph.*;
+
 import java.util.*;
 
 
@@ -25,7 +21,7 @@ public class PebbleGame{
      *
      * @return boolean to indicate whether graph is rigid (true)
      */
-    public boolean testGraphForRigidity(Graph graph){
+    public boolean testGraphForRigidity(){
 
         // Datei mit Knoten- & Kanteninformationen
 //		String fileName="doubleTdoubleE";
@@ -34,10 +30,10 @@ public class PebbleGame{
 //		String fileName="bigOne";
 
         Graph graph = PebbleGameReader.readPebbleGameInformation(fileName);
-        Graph pebbleGraph = new Graph(graph.getNodes(), new HashSet<Edge>(graph.getEdges.size()));
+        Graph pebbleGraph = new Graph(graph.getNodes(), new HashSet<Edge>(graph.getEdges().size()));
         // Gesamtzahl der Pebbles speichern (brauchen wir das noch)?
-        int pebbles = (nodes.size() * k);
-        HashMap<Node, Integer> pebblesPerNode = new HashMap<>(nodes.size());
+        int pebbles = (graph.getNodes().size() * k);
+        HashMap<Node, Integer> pebblesPerNode = new HashMap<>(graph.getNodes().size());
         for(Node currentNode : graph.getNodes()){
             pebblesPerNode.put(currentNode, k);
         }

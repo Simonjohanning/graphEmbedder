@@ -1,7 +1,7 @@
 package graphEmbedder.graph;
 
-import myNode;
-import myEdge;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class myComponent {
@@ -14,7 +14,6 @@ public class myComponent {
         cNodes.add(a);
         cNodes.add(b);
         cEdges.add(c);
-        Collection
     }
 
     public void merge(myComponent d) {

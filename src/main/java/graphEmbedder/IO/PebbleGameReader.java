@@ -3,12 +3,7 @@ package graphEmbedder.IO;
 import java.util.*;
 import java.io.*;
 
-import graph.Graph;
-import graph.Node;
-import graph.Edge;
-import graph.myNode;
-import graph.myEdge;
-import graph.myComponent;
+import graphEmbedder.graph.*;
 
 public class PebbleGameReader{
 
@@ -39,7 +34,7 @@ public class PebbleGameReader{
                         int xc = Integer.parseInt(line);
                         line = bufferReader.readLine();
                         int yc = Integer.parseInt(line);
-                        node1 = new myNode(xc,yc);
+                        myNode node1 = new myNode(xc,yc);
                         nodes.add(node1);
                     }
                     catch(Exception e){
@@ -55,7 +50,7 @@ public class PebbleGameReader{
                         int xc = Integer.parseInt(line);
                         line = bufferReader.readLine();
                         int yc = Integer.parseInt(line);
-                        edge1 = new myEdge(nodes.get(xc),nodes.get(yc));
+                        myEdge edge1 = new myEdge(nodes.get(xc),nodes.get(yc));
                         edges.add(edge1);
                     }
                     catch(Exception e){
@@ -73,12 +68,33 @@ public class PebbleGameReader{
         return mariusGraphToSimonGraph(nodes, edges, components);
     }
 
-    private Graph mariusGraphToSimonGraph(List<myNode> nodes, List<myEdge> edges, List<myComponent> components){
-        HashSet<Node> nodeSet = new HashSet<>(nodes.size());
-        HashSet<Node> edgeSet = new HashSet<>(edges.size());
-        nodeSet.addAll(nodes);
-        edgeSet.addAll(edges);
-        return new Graph(nodeSet, edgeSet);
+    private static Graph mariusGraphToSimonGraph(List<myNode> nodes, List<myEdge> edges, List<myComponent> components){
+        HashMap<Integer, Node> nodeMap = new HashMap<>(nodes.size());
+        HashSet<Edge> edgeSet = new HashSet<>(edges.size());
+        HashMap<myNode, Node> associatedMyNodes = new HashMap<>(nodes.size());
+        HashSet<Component> newComponents = new HashSet<>(nodes.size());
+        for(myNode node : nodes){
+            Node currentNode = new Node(node.toString(), node.getX()*nodes.size()+node.getY(), null);
+            HashSet singleNodeList = new HashSet<>(1);
+            Component nodeComponent = new Component(singleNodeList);
+            newComponents.add(nodeComponent);
+            currentNode.setAssociatedComponent(nodeComponent);
+            nodeMap.put(currentNode.getId(), currentNode);
+            associatedMyNodes.put(node, currentNode);
+        }
+        for(myEdge edge : edges){
+            Edge currentEdge = new Edge(edge.toString(), associatedMyNodes.get(edge.getA()), associatedMyNodes.get(edge.getB()));
+            edgeSet.add(currentEdge);
+            if(currentEdge.getSource().getAssociatedComponent() != currentEdge.getTarget().getAssociatedComponent()){
+                Component unifiedComponent = GraphHelper.unifyComponents(currentEdge.getSource().getAssociatedComponent(), currentEdge.getTarget().getAssociatedComponent());
+                newComponents.remove(currentEdge.getSource().getAssociatedComponent());
+                newComponents.remove(currentEdge.getTarget().getAssociatedComponent());
+                newComponents.add(unifiedComponent);
+                nodeMap.get(currentEdge.getSource().getId()).setAssociatedComponent(unifiedComponent);
+                nodeMap.get(currentEdge.getTarget().getId()).setAssociatedComponent(unifiedComponent);
+            }
+        }
+        return new Graph(nodeMap.values(), edgeSet, newComponents);
     }
 }
 

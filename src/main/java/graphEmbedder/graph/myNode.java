@@ -1,5 +1,6 @@
 package graphEmbedder.graph;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class myNode
@@ -8,6 +9,23 @@ public class myNode
     int x;
     int y;
     // Pebbleanzahl
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getPebbles() {
+        return pebbles;
+    }
+
+    public List<myNode> getFollowers() {
+        return followers;
+    }
+
     int pebbles;
     // Liste der Nachfolger (über gerichtete Kanten direkt erreichbar)
     List<myNode> followers = new ArrayList<myNode>();

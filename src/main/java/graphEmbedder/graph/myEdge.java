@@ -1,13 +1,20 @@
 package graphEmbedder.graph;
 
 import java.util.List;
-import graph.myNode;
 
 public class myEdge
 {
     // Knoten, die durch die Kante verbunden sind
     myNode a;
     myNode b;
+
+    public myNode getA() {
+        return a;
+    }
+
+    public myNode getB() {
+        return b;
+    }
 
     // Main-Methode diente nur einem simplen Test...
     public static void main (String[] args)
