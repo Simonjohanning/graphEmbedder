@@ -1,0 +1,704 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>documentation</title>
+<!-- 2016-05-30 Mo 08:42 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="Sim" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  pre.src-sh:before    { content: 'sh'; }
+  pre.src-bash:before  { content: 'sh'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-R:before     { content: 'R'; }
+  pre.src-perl:before  { content: 'Perl'; }
+  pre.src-java:before  { content: 'Java'; }
+  pre.src-sql:before   { content: 'SQL'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.right  { text-align: center;  }
+  th.left   { text-align: center;   }
+  th.center { text-align: center; }
+  td.right  { text-align: right;  }
+  td.left   { text-align: left;   }
+  td.center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara:nth-child(2) { display: inline; }
+  .footpara { display: block; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+<script type="text/javascript" src="http://orgmode.org/mathjax/MathJax.js"></script>
+<script type="text/javascript">
+<!--/*--><![CDATA[/*><!--*/
+    MathJax.Hub.Config({
+        // Only one of the two following lines, depending on user settings
+        // First allows browser-native MathML display, second forces HTML/CSS
+        //  config: ["MMLorHTML.js"], jax: ["input/TeX"],
+            jax: ["input/TeX", "output/HTML-CSS"],
+        extensions: ["tex2jax.js","TeX/AMSmath.js","TeX/AMSsymbols.js",
+                     "TeX/noUndefined.js"],
+        tex2jax: {
+            inlineMath: [ ["\\(","\\)"] ],
+            displayMath: [ ['$$','$$'], ["\\[","\\]"], ["\\begin{displaymath}","\\end{displaymath}"] ],
+            skipTags: ["script","noscript","style","textarea","pre","code"],
+            ignoreClass: "tex2jax_ignore",
+            processEscapes: false,
+            processEnvironments: true,
+            preview: "TeX"
+        },
+        showProcessingMessages: true,
+        displayAlign: "center",
+        displayIndent: "2em",
+
+        "HTML-CSS": {
+             scale: 100,
+             availableFonts: ["STIX","TeX"],
+             preferredFont: "TeX",
+             webFont: "TeX",
+             imageFont: "TeX",
+             showMathMenu: true,
+        },
+        MMLorHTML: {
+             prefer: {
+                 MSIE:    "MML",
+                 Firefox: "MML",
+                 Opera:   "HTML",
+                 other:   "HTML"
+             }
+        }
+    });
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">documentation</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. Background / purpose</a></li>
+<li><a href="#sec-2">2. Idea</a></li>
+<li><a href="#sec-3">3. Program components</a>
+<ul>
+<li><a href="#sec-3-1">3.1. minimally rigid subgraph construction</a></li>
+<li><a href="#sec-3-2">3.2. pebble game</a>
+<ul>
+<li><a href="#sec-3-2-1">3.2.1. rigid component recognition</a></li>
+</ul>
+</li>
+<li><a href="#sec-3-3">3.3. test graph generation</a>
+<ul>
+<li><a href="#sec-3-3-1">3.3.1. Henneberg test graphs</a></li>
+<li><a href="#sec-3-3-2">3.3.2. pdb test graphs</a></li>
+<li><a href="#sec-3-3-3">3.3.3. miscellaneous test graphs</a></li>
+</ul>
+</li>
+<li><a href="#sec-3-4">3.4. graph embedding</a>
+<ul>
+<li><a href="#sec-3-4-1">3.4.1. combinatorial positioning</a></li>
+</ul>
+</li>
+<li><a href="#sec-3-5">3.5. graph format</a></li>
+</ul>
+</li>
+<li><a href="#sec-4">4. Theory</a>
+<ul>
+<li><a href="#sec-4-1">4.1. pebble game</a></li>
+<li><a href="#sec-4-2">4.2. rigid components</a></li>
+<li><a href="#sec-4-3">4.3. construction of minimally rigid subgraphs</a></li>
+<li><a href="#sec-4-4">4.4. relation between rigidity and sparsity of graphs</a></li>
+<li><a href="#sec-4-5">4.5. block construction</a></li>
+</ul>
+</li>
+<li><a href="#sec-5">5. Implementation</a></li>
+<li><a href="#sec-6">6. Glossary</a>
+<ul>
+<li><a href="#sec-6-1">6.1. block</a></li>
+<li><a href="#sec-6-2">6.2. sparsity-component</a></li>
+<li><a href="#sec-6-3">6.3. (k,l)-sparsity independence</a></li>
+<li><a href="#sec-6-4">6.4. component</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Background / purpose</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+This program has been developed in the context of the course <i>Advanced Methods in Bioinformatics</i> at the University of Leipzig.
+It serves to provide spatial parameters (\(\mathbb{R}^{3}\)) for molecule embeddings.
+It takes bond lengths and angles between atoms of these molecules as <i>parameters</i>, and a molecular graph as <i>input data</i>.
+For these input data, this program will find one (or several) minimal (wrt. the <i>force field embedding</i> function) embedding.
+</p>
+
+<p>
+The tool is a command line tool that can be embedded in linux pipelines. It has been tested on the following systems&#x2026;
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Idea</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+The idea behind the program is to analyze the molecular graph and to find a minimal rigid (and thus unique) subgraph embeddingded into the target space.
+A generic minimal rigid graph requires that graph not to have any stressed subgraph, meaning that these are minimally rigid as well (thus non-stressed subgraphs).
+In the 3-dimensional case, this means that the minimally rigid subgraph has 6*n-6 edges (where n is the number of atoms in the molecule and an edges corresponds to a molecular bond), and all of its subgraphs have 6*\(\hat{n}\)-6 edges (with \(\hat{n}\) being the number of nodes in the induced subgraph).
+This basically means that the graph is (6,6)-sparse.
+</p>
+
+<p>
+The latter condition yields an independent set of edges that can be understood as a (maximal) independence set of a matroid.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Program components</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+Overview:
+After the input data has been read in and put into the internal <a href="#sec-3-5">3.5</a>, the rigid components of the graph are identified.
+Since the graph is to be embedded in three-dimensional space, this can be done via a (6,6)-<a href="#sec-3-2">3.2</a>.
+Subsequently, these components are <a href="#sec-3-4">embedded</a> in three-dimensional space.
+For this, rigid &amp; redundant subgraphs are uniquely embedded in space.
+</p>
+
+<p>
+In the latter step, for finding minimally rigid graphs, a set W &sub; V of the nodes of the graph is seeked that is maximal wrt. set inclusion (&sub;).
+</p>
+</div>
+
+<div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1"><span class="section-number-3">3.1</span> minimally rigid subgraph construction</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+In order to arrived at the <a href="#sec-4-3">4.3</a>, a graph $\hat{G}=(V,\hat{E}) is constructed from a given graph G(V,E) with \(\hat{E}\) &sub; E as independent subset.
+In order to arrive at an independent set, all edges e &isin; E are iterated, and added to \(\hat{E}\) (initialized as \(\hat{E}\) = &empty;), if the set \hat{E} \union e is independent.
+If \(|\hat{E}|\) = 6|V|-6 at some point, or all edges have been iterated over, the rigidity of the graph is determined (on whether the graph has 6|V|-6 edges).
+</p>
+
+<p>
+This is done via the <a href="#sec-3-2">3.2</a> mentioned below.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3-2" class="outline-3">
+<h3 id="sec-3-2"><span class="section-number-3">3.2</span> pebble game</h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+For the three-dimensional case, a pebble game is instantiated on the empty graph D=(V,\(\emptyset\)).
+Every node is associated with a number of k <i>pebbles</i> (for the <i>k</i>-pebble game<sup><a id="fnr.1" name="fnr.1" class="footref" href="#fn.1">1</a></sup>).
+For inserting edges the following moves / operations can be performed:
+</p>
+
+<blockquote>
+<p>
+edge uv (with u,v &isin; V, uv &isin; E): 
+</p>
+
+<p>
+if there are at least l+1 pebbles at u and v (where u is the source of the edge to be inserted), insert the edge uv in D and remove a pebble from u 
+(if all pebbles are located at v, remove one there and insert the edge vu.)
+</p>
+</blockquote>
+
+<p>
+<a id="pebble-collection" name="pebble-collection"></a>
+pebble collection: 
+If there are not enough pebbles in u, an edge uv &isin; E can only be inserted if a pebble is acquired.
+</p>
+<blockquote>
+<p>
+Find a path to a vertex w with a free pebble
+Remove the pebble on w and invert the edges along the directed path to w
+</p>
+</blockquote>
+<p>
+An edge is acquired if a path from nodes u or v to a node w with a pebble <sup><a id="fnr.2" name="fnr.2" class="footref" href="#fn.2">2</a></sup> is found. 
+Inverting the edges means the following:
+For e<sub>i</sub>=w<sub>i</sub>w<sub>i+1</sub> (w<sub>n+1</sub> = u &or; w<sub>n+1</sub> = v) is removed and \hat{e<sub>i</sub>}=w<sub>i+1</sub>w<sub>i</sub> is inserted in D.
+</p>
+
+<p>
+These two operations are executed until for all edges it is decided whether they are included in \(\hat{E}\) or not.
+</p>
+
+<p>
+The set of edges included now form a <a href="#sec-6-3">(k,l)-sparsity independent set</a> (in the 3D-case used in this program <i>(k,l)=(6,6)</i>).
+</p>
+
+<p>
+Computationally, this algorithm is further optimized by quicker recognition of dependend edges (which get rejected, but still take O($\hat{E}(D)) time) through analyzing rigid components (see <a href="#sec-3-2-1">3.2.1</a>).
+</p>
+</div>
+<div id="outline-container-sec-3-2-1" class="outline-4">
+<h4 id="sec-3-2-1"><span class="section-number-4">3.2.1</span> rigid component recognition</h4>
+<div class="outline-text-4" id="text-3-2-1">
+<p>
+The <i>rigid component recognition</i> is performed in order to optimize the pebble game, and can be seen as a part of this.
+</p>
+
+<p>
+Since a rigid graph <a href="#sec-4-2">has only one sparsity component</a>, and a non-rigid graph can be described through its sparsity components, the pebble game can be optimized by identifying sparsity components during its run. 
+</p>
+
+<p>
+Since as soon as the <a href="#pebble-collection">3.2</a> fails, the entire connected component is <i>sparse</i> (see <a href="#sec-4-2">4.2</a>), and the pebble game algorithm can be modified to the following:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-python">for all edges e=uv:
+	u,v already in the same component: reject edge
+	peb(u)+peb(v) \geq l+1: 
+		insert edge in D
+		reduce peb(u) or peb(v) by 1
+		orient edge in D
+	otherwise collect pebbles:
+		if successful see above (free edge / no block)
+		if unsuccessful reject edge
+	find component u &amp; v are part of
+	remove all components that are part of the generated component
+</pre>
+</div>
+
+<p>
+In order to find the components u &amp; v are part of, construct the vertex set V<sup>&prime;&prime;</sup> as follows:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-python">V^{\prime\prime} = \emptyset
+for all vertices w not reachable from u or v:
+	if w has a pebble: add all nodes that can reach w to V^{\prime\prime}
+</pre>
+</div>
+<p>
+The component of u and v now is V\V<sup>&prime;&prime;</sup>, since V<sup>&prime;&prime;</sup> is the set of nodes a pebble can be transported to.
+Thus the set V\V<sup>&prime;&prime;</sup> needs to be rigid. This set is maximal, since all nodes not in this set can acquire pebbles.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-3-3" class="outline-3">
+<h3 id="sec-3-3"><span class="section-number-3">3.3</span> test graph generation</h3>
+<div class="outline-text-3" id="text-3-3">
+<p>
+The test graph generation is split into three parts. 
+One part of the test (and example) graphs are the <a href="#sec-3-3-1">3.3.1</a>, another kind are the <a href="#sec-3-3-2">3.3.2</a> and finally there is a bunch of <a href="#sec-3-3-3">3.3.3</a>.
+These graphs were used to test the system and provide the user with a bunch of (tested!) graphs where graph embeddings could be derived.
+</p>
+</div>
+
+<div id="outline-container-sec-3-3-1" class="outline-4">
+<h4 id="sec-3-3-1"><span class="section-number-4">3.3.1</span> Henneberg test graphs</h4>
+<div class="outline-text-4" id="text-3-3-1">
+<p>
+The Henneberg test graphs are graphs derived through the <i>Henneberg construction</i>.
+For this construction, a graph is constructed from a K<sub>2</sub> (fully connected graph with 2 edges), to which nodes were added iteratively.
+Nodes were added as <b>type1</b> nodes or <b>type2</b> nodes, as follows
+</p>
+
+<p>
+<b>type1 construction</b>:
+</p>
+<pre class="example">
+connect node with two existing nodes via two new edges
+</pre>
+
+<p>
+<b>type2 construction</b>:
+</p>
+<pre class="example">
+find three nodes u,v,w with at least one edge in the induced subgraph G[u,v,w]
+connect new node with u,v, and w and delete an edge in G[u,v,w]
+</pre>
+</div>
+</div>
+
+<div id="outline-container-sec-3-3-2" class="outline-4">
+<h4 id="sec-3-3-2"><span class="section-number-4">3.3.2</span> pdb test graphs</h4>
+<div class="outline-text-4" id="text-3-3-2">
+<p>
+The <i>pdb test graphs</i> are real-world molecular graphs taken from the <i>protein data bank website</i>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3-3-3" class="outline-4">
+<h4 id="sec-3-3-3"><span class="section-number-4">3.3.3</span> miscellaneous test graphs</h4>
+<div class="outline-text-4" id="text-3-3-3">
+<p>
+These are a class of graphs that were used to test some key ideas.
+They were small, manually constructed graphs intended to test specific behaviour of the program.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-3-4" class="outline-3">
+<h3 id="sec-3-4"><span class="section-number-3">3.4</span> graph embedding</h3>
+<div class="outline-text-3" id="text-3-4">
+<p>
+The program aims to solve the <a href="https://scholar.google.com/citations?view_op=view_citation&hl=es&user=quMILWkAAAAJ&citation_for_view=quMILWkAAAAJ:IjCSPb-OGe4C">molecule problem</a> for a given graph, that is to find a realization p:V &rarr; \mathbb{R}<sup>3</sup>.
+In order to achieve this, the force field embedding F(p) = &sum;<sub>e<sub>ij</sub> &isin; E</sub> (|p<sub>i</sub>-p<sub>j</sub>|<sup>2</sup> - d<sub>ij</sub><sup>2</sup>)<sup>2</sup> is minimized, where
+</p>
+<pre class="example">
+e_{ij} is the (oriented) edge from node i \in V to node j \in V
+p is the realization for the nodes v \to \mathbb{R}^{3}
+d_{ij} is the measured distance between atoms i and j in the molecule graph
+</pre>
+<p>
+In order to this, the following steps are taken:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-python">Find a maximal, realizable, unique subgraph that is sufficiently small:
+	For this every vertex needs to have at least 4 outgoing edges
+	The graph needs to be redundantly rigid
+For every sufficiently graph, the positions are set as given in the minimization of F
+For not sufficiently small graphs, the problem is recursively broken down in smaller subproblems
+</pre>
+</div>
+<p>
+In order to achieve maximal uniqueness, the following algorithm is executed:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-python">if G \equiv K_{5,5}: 
+	no unique subgraph can be found (recursion is stopped)
+else if graph is not 4-connected: 
+	the problem is addressed recursively on 4-connected subgraphs
+else if graph is not redundantly rigid: 
+	problem is address on redundant rigid subgraphs
+else if suffience condition holds (see below): 
+	graph is unique
+else 
+	some /interesting/ graph is found and reported[fn:4]
+</pre>
+</div>
+<p>
+In order to find redundant rigid components the following algorithm is applied:
+</p>
+<pre class="example">
+find a maximal set of redundant edges via QR decomposition
+find a basis for remaining flexes[fn:5] via QR decomposition[fn:6]
+\forall 3-cliques x,y,z in the induced graph that v is not part of, it can be added if it has induced edges to x,y,z
+</pre>
+<p>
+Through this algorithm a graph can be decomposed in its redundant rigid components. 
+To arrive at a rigid graph again, the subgraphs have to be recombined agained. 
+This is achieved through <a href="#sec-3-4-1">3.4.1</a>
+</p>
+
+<p>
+For the application of molecule embedding given the bond angles and bond lengths, the force field embedding is modified as follows:
+f(x) = &sum;<sub>e<sub>ij</sub> &isin; E</sub> &kappa; ((x<sub>i</sub> - x<sub>j</sub>)<sup>2</sup> - r<sub>e</sub><sup>2</sup>)<sup>2</sup> + &kappa;<sup>&prime;</sup> &sum;<sub>&alpha; = (i j k)</sub> &lt;(x<sub>i</sub> - x<sub>j</sub>),(x<sub>k</sub> - x<sub>j</sub>)&gt;
+= &sum;<sub>e<sub>ij</sub> &isin; E</sub> &kappa; ((x<sub>i</sub> - x<sub>j</sub>)<sup>2</sup> - r<sub>e</sub><sup>2</sup>)<sup>2</sup> + &kappa;<sup>&prime;</sup> &sum;<sub>&alpha; = (i j k)</sub> cos(&alpha;)
+</p>
+
+<p>
+&kappa;: parameter to weigh the importance of bond length 
+&kappa;<sup>&prime;</sup>: parameter to weigh the importance of bond angles
+r<sub>e</sub>: length of bond of edge e = e<sub>ij</sub> between atom represented by node i and atom represented by node j
+&alpha; = (i j k): The angle between the edge e<sub>ij</sub> and e<sub>jk</sub> (the angles of the three atom represented by these nodes on point j)
+</p>
+
+<p>
+With this force field we can assess how good embeddings are relative to given parameters (such as bond angle etc.).
+The force field embedding is done via a library (tbc).
+If the graph to be embedded is rigid and non-redundant, an optimimal (f-)minimal embedding exists, if the graph is overdetermined, a residiual stress will remain.
+</p>
+
+<p>
+In the case of maximally rigid subsets, <a href="#sec-6-1">blocks</a> will remain.
+</p>
+</div>
+
+<div id="outline-container-sec-3-4-1" class="outline-4">
+<h4 id="sec-3-4-1"><span class="section-number-4">3.4.1</span> combinatorial positioning</h4>
+<div class="outline-text-4" id="text-3-4-1">
+<p>
+For the combinatorial positioning, the <i>chunks</i> of a graph are combined. 
+Chunks of a graph are subgraph that share some vertices on which they are 'glued' to one another.
+For the three-dimensional case, chunks that share 4 nodes are needed assumed that no linear dependencies between the nodes exist.
+In this case, the chunks fit uniquely and rigidly, thus there is only a single possibility as for how these graphs can be glued together.
+If chunks share only three nodes, one chunk can also be reflected, thus doubling the potential embeddings, leading to an exponential combinatorial explosion.
+</p>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-sec-3-5" class="outline-3">
+<h3 id="sec-3-5"><span class="section-number-3">3.5</span> graph format</h3>
+<div class="outline-text-3" id="text-3-5">
+<p>
+A graph G=(V,E) is a 2-tupel of vertices V and edges E. 
+The vertices of G are of class <b>node</b> and the edges are of class <b>edge</b>.
+</p>
+
+<p>
+Since in the construction of the minimal rigid subgraph embeddings the <a href="#sec-6-4">components</a> are of importance, the representation of the graph also includes a list of the <b>components</b> of the graph.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Theory</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1"><span class="section-number-3">4.1</span> pebble game</h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+A <a href="http://arxiv.org/pdf/math/0702129.pdf">pebble game</a> is an algorithm to determine the independence of an edge set within a given graph.
+Pebble games are parameterized by two parameters <i>k</i> and <i>l</i>, and are used to find <a href="#sec-6-3">(k,l)-sparse indepence sets</a>.
+The pebble game balances the degrees of freedom<sup><a id="fnr.3" name="fnr.3" class="footref" href="#fn.3">3</a></sup> and the constrains introduced through the introduction of edges. 
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2"><span class="section-number-3">4.2</span> rigid components</h3>
+<div class="outline-text-3" id="text-4-2">
+<p>
+Since <i>blocks</i> are rigid subgraphs already, the <a href="#sec-4-1">4.1</a> can be optimized by identifying whether the pebble collection part of the algorithm tries to determine whether the edge under consideration should be inserted in a <a href="#sec-6-1">6.1</a>.
+In this case, the edge will be rejected, since the block is a rigid subgraph already, and the pebble collection step will not yield any new information.
+</p>
+
+<p>
+For this, <a href="#sec-6-2">(k,l)-sparsity components</a> are identified.
+</p>
+
+<p>
+In the context of the <a href="#sec-4-1">4.1</a>, the following observation holds:
+</p>
+<pre class="example">
+Every sparsity component is connected and every sparsity component has exactly l pebbles
+</pre>
+
+<p>
+Thus, as soon as the <a href="#pebble-collection">3.2</a> fails, the entire connected component is <i>sparse</i>, and no edges in the same connected component need to be considered anymore.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-4-3" class="outline-3">
+<h3 id="sec-4-3"><span class="section-number-3">4.3</span> construction of minimally rigid subgraphs</h3>
+<div class="outline-text-3" id="text-4-3">
+<p>
+Since G(V,E) is a graph matroid, it can be constrcuted through a greedy algorithm in order to construct the maximal edge set \hat{E}.
+In order to test the independence of the set \(\hat{E} \union\) e, the (6,6)-<a href="#sec-4-1">4.1</a> is used, which determines the independence of the given edge set.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-4-4" class="outline-3">
+<h3 id="sec-4-4"><span class="section-number-3">4.4</span> relation between rigidity and sparsity of graphs</h3>
+<div class="outline-text-3" id="text-4-4">
+<p>
+The connection between rigidity and sparsity of graphs is as follows:
+</p>
+
+<p>
+A graph G is (k,l)-rigid &hArr; G=(V,F) has a spanning (k,l)-sparse subgraph \hat{G}=(V,E) with E &sub; F,
+whereas the edges in F\E are redundant edges that only cause (mechanical) stress. 
+</p>
+
+<p>
+As such, E is a (k,l)-sparsity matroid (a basis).
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-4-5" class="outline-3">
+<h3 id="sec-4-5"><span class="section-number-3">4.5</span> block construction</h3>
+<div class="outline-text-3" id="text-4-5">
+<p>
+For <i>blocks</i> the following equivalence holds:
+V<sup>&prime;</sup> spans a block \Leftrigharrow #pebbles in V<sup>&prime;</sup> + #number of edges from V<sup>&prime;</sup> to V\V<sup>&prime;</sup> = l.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> Implementation</h2>
+</div>
+<div id="outline-container-sec-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> Glossary</h2>
+<div class="outline-text-2" id="text-6">
+</div><div id="outline-container-sec-6-1" class="outline-3">
+<h3 id="sec-6-1"><span class="section-number-3">6.1</span> block</h3>
+<div class="outline-text-3" id="text-6-1">
+<p>
+A <i>block</i> is defined as a (k,l)-sparse independend subgraph G<sup>&prime;</sup> with |E<sup>&prime;</sup>|=k*|V<sup>&prime;</sup>|-l edges (thus a (k,l)-sparsity rigid ((k,l)-tight) subgraph).
+</p>
+</div>
+</div>
+<div id="outline-container-sec-6-2" class="outline-3">
+<h3 id="sec-6-2"><span class="section-number-3">6.2</span> sparsity-component</h3>
+<div class="outline-text-3" id="text-6-2">
+<p>
+A <i>(k,l)-sparsity component</i> is a block that is maximal wrt. a vertex set, meaning that it does not contain another block itself.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-6-3" class="outline-3">
+<h3 id="sec-6-3"><span class="section-number-3">6.3</span> (k,l)-sparsity independence</h3>
+<div class="outline-text-3" id="text-6-3">
+<p>
+An edge set E is called (k,l)-sparsity-independent if &forall; B &sub; E:
+</p>
+
+<p>
+\(|B| \leq k*|V(B)|-l\) with V(B) as node set spanned by B
+</p>
+</div>
+</div>
+<div id="outline-container-sec-6-4" class="outline-3">
+<h3 id="sec-6-4"><span class="section-number-3">6.4</span> component</h3>
+<div class="outline-text-3" id="text-6-4">
+<p>
+A <i>component</i> of a graph G is an induced subgraph \(\hat{G}=(\hat{V}, \hat{E})\) of vertices v &isin; \(\hat{V}\) such that &forall; u,v &isin; \(\hat{V}\) either uv &isin; \(\hat{E}\) or vu &isin; \(\hat{E}\), and if uv &isin; E and vu &isin; E, uv &isin; \(\hat{E}\) and vu &isin; \(\hat{E}\)
+</p>
+</div>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" name="fn.1" class="footnum" href="#fnr.1">1</a></sup> <p class="footpara">
+where k=6 for (6,6)-sparsity graphs which are used in the three-dimensional case
+</p></div>
+
+<div class="footdef"><sup><a id="fn.2" name="fn.2" class="footnum" href="#fnr.2">2</a></sup> <p class="footpara">
+i.e. w &isin; Reach(u,v) = {\hat{w} | &exist; e<sub>1</sub>,&#x2026;.,e<sub>k</sub> with e<sub>1</sub>&#x2026;e<sub>k</sub> form a directed path from \hat{w} to u or \hat{w} to v, i.e. target(e<sub>k</sub>) = u &or; target(e<sub>k</sub>) = v}
+</p></div>
+
+<div class="footdef"><sup><a id="fn.3" name="fn.3" class="footnum" href="#fnr.3">3</a></sup> <p class="footpara">
+In 3D space, there are 6 degrees of freedom, namely three translations (one for each dimension of the space), two rotations (along the xy-plane and the yz-plane), as well as the reflection
+</p></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<p class="author">Author: Sim</p>
+<p class="date">Created: 2016-05-30 Mo 08:42</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.5.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
