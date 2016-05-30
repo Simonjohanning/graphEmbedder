@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>documentation</title>
-<!-- 2016-05-30 Mo 08:42 -->
+<!-- 2016-05-30 Mo 19:44 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Sim" />
@@ -189,7 +189,7 @@ for the JavaScript code in this tag.
 <li><a href="#sec-3">3. Program components</a>
 <ul>
 <li><a href="#sec-3-1">3.1. minimally rigid subgraph construction</a></li>
-<li><a href="#sec-3-2">3.2. pebble game</a>
+<li><a href="#sec-3-2">3.2. pebble game implementation</a>
 <ul>
 <li><a href="#sec-3-2-1">3.2.1. rigid component recognition</a></li>
 </ul>
@@ -215,16 +215,20 @@ for the JavaScript code in this tag.
 <li><a href="#sec-4-2">4.2. rigid components</a></li>
 <li><a href="#sec-4-3">4.3. construction of minimally rigid subgraphs</a></li>
 <li><a href="#sec-4-4">4.4. relation between rigidity and sparsity of graphs</a></li>
-<li><a href="#sec-4-5">4.5. block construction</a></li>
+<li><a href="#sec-4-5">4.5. relation between rigidity and graph embedding</a></li>
+<li><a href="#sec-4-6">4.6. block construction</a></li>
 </ul>
 </li>
 <li><a href="#sec-5">5. Implementation</a></li>
 <li><a href="#sec-6">6. Glossary</a>
 <ul>
-<li><a href="#sec-6-1">6.1. block</a></li>
-<li><a href="#sec-6-2">6.2. sparsity-component</a></li>
-<li><a href="#sec-6-3">6.3. (k,l)-sparsity independence</a></li>
-<li><a href="#sec-6-4">6.4. component</a></li>
+<li><a href="#sec-6-1">6.1. (k,l)-sparsity</a></li>
+<li><a href="#sec-6-2">6.2. block</a></li>
+<li><a href="#sec-6-3">6.3. sparsity-component</a></li>
+<li><a href="#sec-6-4">6.4. (k,l)-sparsity independence</a></li>
+<li><a href="#sec-6-5">6.5. component</a></li>
+<li><a href="#sec-6-6">6.6. rigidity</a></li>
+<li><a href="#sec-6-7">6.7. (k,l)-rigidity</a></li>
 </ul>
 </li>
 </ul>
@@ -236,7 +240,7 @@ for the JavaScript code in this tag.
 <div class="outline-text-2" id="text-1">
 <p>
 This program has been developed in the context of the course <i>Advanced Methods in Bioinformatics</i> at the University of Leipzig.
-It serves to provide spatial parameters (\(\mathbb{R}^{3}\)) for molecule embeddings.
+It serves to provide spatial parameters (x<sub>v</sub> &isin; \(\mathbb{R}^{3}\)) for molecule embeddings.
 It takes bond lengths and angles between atoms of these molecules as <i>parameters</i>, and a molecular graph as <i>input data</i>.
 For these input data, this program will find one (or several) minimal (wrt. the <i>force field embedding</i> function) embedding.
 </p>
@@ -251,14 +255,10 @@ The tool is a command line tool that can be embedded in linux pipelines. It has 
 <h2 id="sec-2"><span class="section-number-2">2</span> Idea</h2>
 <div class="outline-text-2" id="text-2">
 <p>
-The idea behind the program is to analyze the molecular graph and to find a minimal rigid (and thus unique) subgraph embeddingded into the target space.
-A generic minimal rigid graph requires that graph not to have any stressed subgraph, meaning that these are minimally rigid as well (thus non-stressed subgraphs).
+The idea behind the program is to analyze the molecular graph and to find a minimal rigid (and thus unique<sup><a id="fnr.1" name="fnr.1" class="footref" href="#fn.1">1</a></sup>) subgraph embedding into the target space.
+A generic minimal rigid graph requires the graph not to have any stressed subgraph, meaning that these are minimally rigid as well (thus non-stressed subgraphs).
 In the 3-dimensional case, this means that the minimally rigid subgraph has 6*n-6 edges (where n is the number of atoms in the molecule and an edges corresponds to a molecular bond), and all of its subgraphs have 6*\(\hat{n}\)-6 edges (with \(\hat{n}\) being the number of nodes in the induced subgraph).
-This basically means that the graph is (6,6)-sparse.
-</p>
-
-<p>
-The latter condition yields an independent set of edges that can be understood as a (maximal) independence set of a matroid.
+This basically means that the graph is (6,6)-<a href="#sec-6-4">sparse</a>.
 </p>
 </div>
 </div>
@@ -269,7 +269,7 @@ The latter condition yields an independent set of edges that can be understood a
 <p>
 Overview:
 After the input data has been read in and put into the internal <a href="#sec-3-5">3.5</a>, the rigid components of the graph are identified.
-Since the graph is to be embedded in three-dimensional space, this can be done via a (6,6)-<a href="#sec-3-2">3.2</a>.
+Since the graph is to be embedded in three-dimensional space, this can be done via a (6,6)-<a href="#sec-4-1">4.1</a>.
 Subsequently, these components are <a href="#sec-3-4">embedded</a> in three-dimensional space.
 For this, rigid &amp; redundant subgraphs are uniquely embedded in space.
 </p>
@@ -283,22 +283,22 @@ In the latter step, for finding minimally rigid graphs, a set W &sub; V of the n
 <h3 id="sec-3-1"><span class="section-number-3">3.1</span> minimally rigid subgraph construction</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
-In order to arrived at the <a href="#sec-4-3">4.3</a>, a graph $\hat{G}=(V,\hat{E}) is constructed from a given graph G(V,E) with \(\hat{E}\) &sub; E as independent subset.
+In order to arrived at the <a href="#sec-4-3">4.3</a>, a graph $\hat{G}$=(V,\(\hat{E}\)) is constructed from a given graph G(V,E) with \(\hat{E}\) &sub; E as independent subset.
 In order to arrive at an independent set, all edges e &isin; E are iterated, and added to \(\hat{E}\) (initialized as \(\hat{E}\) = &empty;), if the set \hat{E} \union e is independent.
 If \(|\hat{E}|\) = 6|V|-6 at some point, or all edges have been iterated over, the rigidity of the graph is determined (on whether the graph has 6|V|-6 edges).
 </p>
 
 <p>
-This is done via the <a href="#sec-3-2">3.2</a> mentioned below.
+This is done via the <a href="#sec-4-1">4.1</a> mentioned below.
 </p>
 </div>
 </div>
 <div id="outline-container-sec-3-2" class="outline-3">
-<h3 id="sec-3-2"><span class="section-number-3">3.2</span> pebble game</h3>
+<h3 id="sec-3-2"><span class="section-number-3">3.2</span> pebble game implementation</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
-For the three-dimensional case, a pebble game is instantiated on the empty graph D=(V,\(\emptyset\)).
-Every node is associated with a number of k <i>pebbles</i> (for the <i>k</i>-pebble game<sup><a id="fnr.1" name="fnr.1" class="footref" href="#fn.1">1</a></sup>).
+For the three-dimensional case, a <a href="#sec-4-1">4.1</a> is instantiated on the empty graph D=(V,\(\emptyset\)).
+Every node is associated with a number of k <i>pebbles</i> (for the <i>k</i>-pebble game<sup><a id="fnr.2" name="fnr.2" class="footref" href="#fn.2">2</a></sup>).
 For inserting edges the following moves / operations can be performed:
 </p>
 
@@ -322,12 +322,13 @@ If there are not enough pebbles in u, an edge uv &isin; E can only be inserted i
 <p>
 Find a path to a vertex w with a free pebble
 Remove the pebble on w and invert the edges along the directed path to w
+Place the pebble on u
 </p>
 </blockquote>
 <p>
-An edge is acquired if a path from nodes u or v to a node w with a pebble <sup><a id="fnr.2" name="fnr.2" class="footref" href="#fn.2">2</a></sup> is found. 
+An edge is acquired if a path from nodes u or v to a node w with a pebble <sup><a id="fnr.3" name="fnr.3" class="footref" href="#fn.3">3</a></sup> is found. 
 Inverting the edges means the following:
-For e<sub>i</sub>=w<sub>i</sub>w<sub>i+1</sub> (w<sub>n+1</sub> = u &or; w<sub>n+1</sub> = v) is removed and \hat{e<sub>i</sub>}=w<sub>i+1</sub>w<sub>i</sub> is inserted in D.
+For e<sub>i</sub>=w<sub>i</sub>w<sub>i+1</sub> (w<sub>n+1</sub> = u &or; w<sub>n+1</sub> = v) is removed and $\hat{e<sub>i</sub>}$=w<sub>i+1</sub>w<sub>i</sub> is inserted in D.
 </p>
 
 <p>
@@ -335,7 +336,7 @@ These two operations are executed until for all edges it is decided whether they
 </p>
 
 <p>
-The set of edges included now form a <a href="#sec-6-3">(k,l)-sparsity independent set</a> (in the 3D-case used in this program <i>(k,l)=(6,6)</i>).
+The set of edges included now form a <a href="#sec-6-4">(k,l)-sparsity independent set</a> (in the 3D-case used in this program <i>(k,l)=(6,6)</i>).
 </p>
 
 <p>
@@ -354,14 +355,16 @@ Since a rigid graph <a href="#sec-4-2">has only one sparsity component</a>, and 
 </p>
 
 <p>
-Since as soon as the <a href="#pebble-collection">3.2</a> fails, the entire connected component is <i>sparse</i> (see <a href="#sec-4-2">4.2</a>), and the pebble game algorithm can be modified to the following:
+Since as soon as the <a href="#pebble-collection">3.2</a> fails, the entire connected component is <i>sparse</i> (see <a href="#sec-4-2">4.2</a>).
+The component then is the union of all blocks containing the nodes u and v.
+The pebble game algorithm can thus be modified to the following:
 </p>
 
 <div class="org-src-container">
 
 <pre class="src src-python">for all edges e=uv:
 	u,v already in the same component: reject edge
-	peb(u)+peb(v) \geq l+1: 
+	peb(u)+peb(v) &gt;= l+1: 
 		insert edge in D
 		reduce peb(u) or peb(v) by 1
 		orient edge in D
@@ -378,9 +381,9 @@ In order to find the components u &amp; v are part of, construct the vertex set 
 </p>
 <div class="org-src-container">
 
-<pre class="src src-python">V^{\prime\prime} = \emptyset
+<pre class="src src-python">V'' = {}
 for all vertices w not reachable from u or v:
-	if w has a pebble: add all nodes that can reach w to V^{\prime\prime}
+	if w has a pebble: add all nodes that can reach w to V''
 </pre>
 </div>
 <p>
@@ -440,12 +443,25 @@ The <i>pdb test graphs</i> are real-world molecular graphs taken from the <i>pro
 <div class="outline-text-4" id="text-3-3-3">
 <p>
 These are a class of graphs that were used to test some key ideas.
-They were small, manually constructed graphs intended to test specific behaviour of the program.
+These can be separated in two kinds of graphs.
+The <a href="#sec-3-3-3-1">first class</a> of test graphs were small, manually constructed graphs intended to test specific behaviour of the program.
+The <a href="#sec-3-3-3-2">second class</a> of test graphs were larger, automatically generated graphs exhibitng certain characteristics.
 </p>
 </div>
+<ol class="org-ol"><li><a id="sec-3-3-3-1" name="sec-3-3-3-1"></a>manually constructed graphs<br  /><div class="outline-text-5" id="text-3-3-3-1">
+<p>
+These test graphs can be found in &#x2026;
+</p>
+</div>
+</li>
+<li><a id="sec-3-3-3-2" name="sec-3-3-3-2"></a>automatically constructed graphs<br  /><div class="outline-text-5" id="text-3-3-3-2">
+<p>
+This class of graphs were constructed through&#x2026;
+</p>
+</div>
+</li></ol>
 </div>
 </div>
-
 <div id="outline-container-sec-3-4" class="outline-3">
 <h3 id="sec-3-4"><span class="section-number-3">3.4</span> graph embedding</h3>
 <div class="outline-text-3" id="text-3-4">
@@ -521,7 +537,7 @@ If the graph to be embedded is rigid and non-redundant, an optimimal (f-)minimal
 </p>
 
 <p>
-In the case of maximally rigid subsets, <a href="#sec-6-1">blocks</a> will remain.
+In the case of maximally rigid subsets, <a href="#sec-6-2">blocks</a> will remain.
 </p>
 </div>
 
@@ -549,7 +565,7 @@ The vertices of G are of class <b>node</b> and the edges are of class <b>edge</b
 </p>
 
 <p>
-Since in the construction of the minimal rigid subgraph embeddings the <a href="#sec-6-4">components</a> are of importance, the representation of the graph also includes a list of the <b>components</b> of the graph.
+Since in the construction of the minimal rigid subgraph embeddings the <a href="#sec-6-5">components</a> are of importance, the representation of the graph also includes a list of the <b>components</b> of the graph.
 </p>
 </div>
 </div>
@@ -563,8 +579,60 @@ Since in the construction of the minimal rigid subgraph embeddings the <a href="
 <div class="outline-text-3" id="text-4-1">
 <p>
 A <a href="http://arxiv.org/pdf/math/0702129.pdf">pebble game</a> is an algorithm to determine the independence of an edge set within a given graph.
-Pebble games are parameterized by two parameters <i>k</i> and <i>l</i>, and are used to find <a href="#sec-6-3">(k,l)-sparse indepence sets</a>.
-The pebble game balances the degrees of freedom<sup><a id="fnr.3" name="fnr.3" class="footref" href="#fn.3">3</a></sup> and the constrains introduced through the introduction of edges. 
+Pebble games are parameterized by two parameters <i>k</i> and <i>l</i>, and are used to find <a href="#sec-6-4">(k,l)-sparse indepence sets</a>.
+The pebble game balances the degrees of freedom<sup><a id="fnr.4" name="fnr.4" class="footref" href="#fn.4">4</a></sup> and the constrains introduced through the introduction of edges. 
+</p>
+
+<p>
+Within each step of the pebble game the following equalities hold for all vertices v:
+</p>
+<ul class="org-ul">
+<li>peb(v)+span(v)+out(v)=k
+</li>
+<li>peb(v<sup>&prime;</sup>)+span(V<sup>&prime;</sup>)+out(V<sup>&prime;</sup>)=k*|V<sup>&prime;</sup>|
+</li>
+<li>peb(v<sup>&prime;</sup>)+out(V<sup>&prime;</sup>) &ge; l
+</li>
+<li>span(V<sup>&prime;</sup>) &le; k*|V<sup>&prime;</sup>|-l
+</li>
+</ul>
+<p>
+peb(v): number of pebbles in v
+span(V<sup>&prime;</sup>): number of edges spanned in D by vertex set V<sup>&prime;</sup> 
+out(V<sup>&prime;</sup>): number of edges pointing from V<sup>&prime;</sup> to V\V<sup>&prime;</sup>
+</p>
+
+<p>
+The equalities noted above guarantee that every no step of the pebble game violates <a href="#sec-6-1">6.1</a> (if direction of edges are ignored).
+Thus, in every step the pebble game generates an independent edge set.
+</p>
+
+<p>
+The invariants listed above also guarantee that the following equality holds:
+</p>
+
+<p>
+V<sup>&prime;</sup> spans a <a href="#sec-6-2">6.2</a> &hArr; peb(V<sup>&prime;</sup>) + out(V<sup>&prime;</sup>) = l
+</p>
+
+<p>
+Furthermore the following holds:
+</p>
+
+<p>
+e=uv &cup; E(D) independent and peb(u)+peb(v) &lt; l+1 &rArr; &exist; pebble in Reach(u) &cup; Reach(v) that can be transported to u or v
+</p>
+
+<p>
+As well as the following corollary:
+</p>
+
+<p>
+An edge e is inserted in D &hArr; e &cup; E(D) is independent
+</p>
+
+<p>
+\amssymb{\Rrightarrow} the <i>(k,l)-pebble game</i> recognizes <a href="#sec-6-4">6.4</a>
 </p>
 </div>
 </div>
@@ -573,12 +641,12 @@ The pebble game balances the degrees of freedom<sup><a id="fnr.3" name="fnr.3" c
 <h3 id="sec-4-2"><span class="section-number-3">4.2</span> rigid components</h3>
 <div class="outline-text-3" id="text-4-2">
 <p>
-Since <i>blocks</i> are rigid subgraphs already, the <a href="#sec-4-1">4.1</a> can be optimized by identifying whether the pebble collection part of the algorithm tries to determine whether the edge under consideration should be inserted in a <a href="#sec-6-1">6.1</a>.
+Since <i>blocks</i> are rigid subgraphs already, the <a href="#sec-4-1">4.1</a> can be optimized by identifying whether the pebble collection part of the algorithm tries to determine whether the edge under consideration should be inserted in a <a href="#sec-6-2">6.2</a>.
 In this case, the edge will be rejected, since the block is a rigid subgraph already, and the pebble collection step will not yield any new information.
 </p>
 
 <p>
-For this, <a href="#sec-6-2">(k,l)-sparsity components</a> are identified.
+For this, <a href="#sec-6-3">(k,l)-sparsity components</a> are identified.
 </p>
 
 <p>
@@ -597,8 +665,8 @@ Thus, as soon as the <a href="#pebble-collection">3.2</a> fails, the entire conn
 <h3 id="sec-4-3"><span class="section-number-3">4.3</span> construction of minimally rigid subgraphs</h3>
 <div class="outline-text-3" id="text-4-3">
 <p>
-Since G(V,E) is a graph matroid, it can be constrcuted through a greedy algorithm in order to construct the maximal edge set \hat{E}.
-In order to test the independence of the set \(\hat{E} \union\) e, the (6,6)-<a href="#sec-4-1">4.1</a> is used, which determines the independence of the given edge set.
+Since G(V,E) is a graph matroid, it can be constrcuted through a greedy algorithm in order to construct the maximal edge set \(\hat{E}\).
+In order to test the independence of the set \(\hat{E}\) &cup; e, the (6,6)-<a href="#sec-4-1">4.1</a> is used, which determines the independence of the given edge set.
 </p>
 </div>
 </div>
@@ -622,11 +690,42 @@ As such, E is a (k,l)-sparsity matroid (a basis).
 </div>
 
 <div id="outline-container-sec-4-5" class="outline-3">
-<h3 id="sec-4-5"><span class="section-number-3">4.5</span> block construction</h3>
+<h3 id="sec-4-5"><span class="section-number-3">4.5</span> relation between rigidity and graph embedding</h3>
 <div class="outline-text-3" id="text-4-5">
+<p>
+<i>rigid</i> constructions yield unique graph embeddings. 
+Since flexible (non-rigid) graph embeddings exhibit a degree of freedom, flexible graph yield an infinite number of graph embeddings.
+This is the motivation for acquiring rigid subgraphs of the given graphs.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-4-6" class="outline-3">
+<h3 id="sec-4-6"><span class="section-number-3">4.6</span> block construction</h3>
+<div class="outline-text-3" id="text-4-6">
 <p>
 For <i>blocks</i> the following equivalence holds:
 V<sup>&prime;</sup> spans a block \Leftrigharrow #pebbles in V<sup>&prime;</sup> + #number of edges from V<sup>&prime;</sup> to V\V<sup>&prime;</sup> = l.
+</p>
+
+<p>
+Since blocks are already rigid subgraphs, all (potential) edges to be inserted in them will be rejected during the pebble game.
+As this test is computationally the most expensive part of the program (especially for graphs with many edges), the recognition of <a href="#sec-6-3">6.3</a>s is of importance.
+If a graph is rigid, it only consists of one block, and if a graph is flexible, the blocks are sparsity components.
+</p>
+
+<p>
+Thus, the pebble game is improved by identifying sparsity components during the run of the pebble game.
+For this, consider the following Lemma:
+</p>
+
+<p>
+&forall; l &gt; 0 every (k,l)-sparsity component is connected.
+If V&prime; is a (k,l)-sparsity component V&prime; has exactly l pebbles.
+</p>
+
+<p>
+This also means that if the pebbles are a complete set, this set is minimally rigid.
 </p>
 </div>
 </div>
@@ -639,38 +738,73 @@ V<sup>&prime;</sup> spans a block \Leftrigharrow #pebbles in V<sup>&prime;</sup>
 <h2 id="sec-6"><span class="section-number-2">6</span> Glossary</h2>
 <div class="outline-text-2" id="text-6">
 </div><div id="outline-container-sec-6-1" class="outline-3">
-<h3 id="sec-6-1"><span class="section-number-3">6.1</span> block</h3>
+<h3 id="sec-6-1"><span class="section-number-3">6.1</span> (k,l)-sparsity</h3>
 <div class="outline-text-3" id="text-6-1">
 <p>
-A <i>block</i> is defined as a (k,l)-sparse independend subgraph G<sup>&prime;</sup> with |E<sup>&prime;</sup>|=k*|V<sup>&prime;</sup>|-l edges (thus a (k,l)-sparsity rigid ((k,l)-tight) subgraph).
+A graph G=(V,E) is called <i>(k,l)-sparse</i> if
 </p>
+<ul class="org-ul">
+<li>Every vertex set V<sup>&prime;</sup> &sub; V spans at most |E<sup>&prime;</sup>| &le; k*|V<sup>&prime;</sup>|-l edges on E(V<sup>&prime;</sup>)={e &isin; V | e=xy, x,y &isin; V<sup>&prime;</sup>
+</li>
+<li>|E|=k*|V|-l
+</li>
+</ul>
 </div>
 </div>
 <div id="outline-container-sec-6-2" class="outline-3">
-<h3 id="sec-6-2"><span class="section-number-3">6.2</span> sparsity-component</h3>
+<h3 id="sec-6-2"><span class="section-number-3">6.2</span> block</h3>
 <div class="outline-text-3" id="text-6-2">
+<p>
+A <i>(k,l)-block</i> is defined as a (k,l)-sparse independend subgraph G<sup>&prime;</sup> with |E<sup>&prime;</sup>|=k*|V<sup>&prime;</sup>|-l edges (thus a (k,l)-sparsity rigid ((k,l)-tight) subgraph).
+</p>
+</div>
+</div>
+<div id="outline-container-sec-6-3" class="outline-3">
+<h3 id="sec-6-3"><span class="section-number-3">6.3</span> sparsity-component</h3>
+<div class="outline-text-3" id="text-6-3">
 <p>
 A <i>(k,l)-sparsity component</i> is a block that is maximal wrt. a vertex set, meaning that it does not contain another block itself.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-6-3" class="outline-3">
-<h3 id="sec-6-3"><span class="section-number-3">6.3</span> (k,l)-sparsity independence</h3>
-<div class="outline-text-3" id="text-6-3">
+<div id="outline-container-sec-6-4" class="outline-3">
+<h3 id="sec-6-4"><span class="section-number-3">6.4</span> (k,l)-sparsity independence</h3>
+<div class="outline-text-3" id="text-6-4">
 <p>
 An edge set E is called (k,l)-sparsity-independent if &forall; B &sub; E:
-</p>
-
-<p>
 \(|B| \leq k*|V(B)|-l\) with V(B) as node set spanned by B
 </p>
 </div>
 </div>
-<div id="outline-container-sec-6-4" class="outline-3">
-<h3 id="sec-6-4"><span class="section-number-3">6.4</span> component</h3>
-<div class="outline-text-3" id="text-6-4">
+<div id="outline-container-sec-6-5" class="outline-3">
+<h3 id="sec-6-5"><span class="section-number-3">6.5</span> component</h3>
+<div class="outline-text-3" id="text-6-5">
 <p>
 A <i>component</i> of a graph G is an induced subgraph \(\hat{G}=(\hat{V}, \hat{E})\) of vertices v &isin; \(\hat{V}\) such that &forall; u,v &isin; \(\hat{V}\) either uv &isin; \(\hat{E}\) or vu &isin; \(\hat{E}\), and if uv &isin; E and vu &isin; E, uv &isin; \(\hat{E}\) and vu &isin; \(\hat{E}\)
+</p>
+</div>
+</div>
+<div id="outline-container-sec-6-6" class="outline-3">
+<h3 id="sec-6-6"><span class="section-number-3">6.6</span> rigidity</h3>
+<div class="outline-text-3" id="text-6-6">
+<p>
+A framework (G,p) of a graph G=(V,E) and a configuration p:V &rarr; \mathbb{R}<sup>d</sup> is called <i>rigid</i> if &exist; continuous deformation p /to p such that all distances (edge lengths) in G are conserved.
+</p>
+
+<p>
+A graph G is called minimally rigid if (G,p) is rigid and G is not <i>redundant rigid</i>, i.e. the removal of an edge leads to a flexible graph (&exist; continuous deformation p /to p such that all distances (edge lengths) in G are conserved).
+</p>
+</div>
+</div>
+<div id="outline-container-sec-6-7" class="outline-3">
+<h3 id="sec-6-7"><span class="section-number-3">6.7</span> (k,l)-rigidity</h3>
+<div class="outline-text-3" id="text-6-7">
+<p>
+A graph G=(V,F) is called <i>(k,l)-rigid</i> &hArr; G has a spanning <a href="#sec-6-1">(k,l)-sparse</a> subgraph G=(V,E), E &sub; F
+</p>
+
+<p>
+The edges e &isin; F\E are called <i>redundant</i> edges.
 </p>
 </div>
 </div>
@@ -680,14 +814,18 @@ A <i>component</i> of a graph G is an induced subgraph \(\hat{G}=(\hat{V}, \hat{
 <div id="text-footnotes">
 
 <div class="footdef"><sup><a id="fn.1" name="fn.1" class="footnum" href="#fnr.1">1</a></sup> <p class="footpara">
-where k=6 for (6,6)-sparsity graphs which are used in the three-dimensional case
+modulo congruency relations in $\mathbb{R}$<sup>3</sup> (displacing, rotation and reflection)
 </p></div>
 
 <div class="footdef"><sup><a id="fn.2" name="fn.2" class="footnum" href="#fnr.2">2</a></sup> <p class="footpara">
-i.e. w &isin; Reach(u,v) = {\hat{w} | &exist; e<sub>1</sub>,&#x2026;.,e<sub>k</sub> with e<sub>1</sub>&#x2026;e<sub>k</sub> form a directed path from \hat{w} to u or \hat{w} to v, i.e. target(e<sub>k</sub>) = u &or; target(e<sub>k</sub>) = v}
+where k=6 for (6,6)-sparsity graphs which are used in the three-dimensional case
 </p></div>
 
 <div class="footdef"><sup><a id="fn.3" name="fn.3" class="footnum" href="#fnr.3">3</a></sup> <p class="footpara">
+i.e. w &isin; Reach(u,v) = {\hat{w} | &exist; e<sub>1</sub>,&#x2026;.,e<sub>k</sub> with e<sub>1</sub>&#x2026;e<sub>k</sub> form a directed path from \hat{w} to u or \hat{w} to v, i.e. target(e<sub>k</sub>) = u &or; target(e<sub>k</sub>) = v}
+</p></div>
+
+<div class="footdef"><sup><a id="fn.4" name="fn.4" class="footnum" href="#fnr.4">4</a></sup> <p class="footpara">
 In 3D space, there are 6 degrees of freedom, namely three translations (one for each dimension of the space), two rotations (along the xy-plane and the yz-plane), as well as the reflection
 </p></div>
 
@@ -696,7 +834,7 @@ In 3D space, there are 6 degrees of freedom, namely three translations (one for 
 </div></div>
 <div id="postamble" class="status">
 <p class="author">Author: Sim</p>
-<p class="date">Created: 2016-05-30 Mo 08:42</p>
+<p class="date">Created: 2016-05-30 Mo 19:44</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.5.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>

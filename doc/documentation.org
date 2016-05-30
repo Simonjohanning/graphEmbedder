@@ -2,19 +2,17 @@
 
 * Background / purpose
 This program has been developed in the context of the course /Advanced Methods in Bioinformatics/ at the University of Leipzig.
-It serves to provide spatial parameters ($\mathbb{R}^{3}$) for molecule embeddings.
+It serves to provide spatial parameters (x_{v} \in $\mathbb{R}^{3}$) for molecule embeddings.
 It takes bond lengths and angles between atoms of these molecules as [[parameters]], and a molecular graph as [[input data]].
 For these input data, this program will find one (or several) minimal (wrt. the [[force field embedding]] function) embedding.
 
 The tool is a command line tool that can be embedded in linux pipelines. It has been tested on the following systems...
 
 * Idea
-The idea behind the program is to analyze the molecular graph and to find a minimal rigid (and thus unique) subgraph embeddingded into the target space.
-A generic minimal rigid graph requires that graph not to have any stressed subgraph, meaning that these are minimally rigid as well (thus non-stressed subgraphs).
+The idea behind the program is to analyze the molecular graph and to find a minimal rigid (and thus unique[fn:0]) subgraph embedding into the target space.
+A generic minimal rigid graph requires the graph not to have any stressed subgraph, meaning that these are minimally rigid as well (thus non-stressed subgraphs).
 In the 3-dimensional case, this means that the minimally rigid subgraph has 6*n-6 edges (where n is the number of atoms in the molecule and an edges corresponds to a molecular bond), and all of its subgraphs have 6*$\hat{n}$-6 edges (with $\hat{n}$ being the number of nodes in the induced subgraph).
-This basically means that the graph is (6,6)-sparse.
-
-The latter condition yields an independent set of edges that can be understood as a (maximal) independence set of a matroid.
+This basically means that the graph is (6,6)-[[(k,l)-sparsity independence][sparse]].
 
 * Program components
 Overview:
@@ -26,13 +24,13 @@ For this, rigid & redundant subgraphs are uniquely embedded in space.
 In the latter step, for finding minimally rigid graphs, a set W \subset V of the nodes of the graph is seeked that is maximal wrt. set inclusion (\subset).
 
 ** minimally rigid subgraph construction
-In order to arrived at the [[construction of minimally rigid subgraphs]], a graph $\hat{G}=(V,\hat{E}) is constructed from a given graph G(V,E) with $\hat{E}$ \subset E as independent subset.
+In order to arrived at the [[construction of minimally rigid subgraphs]], a graph $\hat{G}$=(V,$\hat{E}$) is constructed from a given graph G(V,E) with $\hat{E}$ \subset E as independent subset.
 In order to arrive at an independent set, all edges e \in E are iterated, and added to $\hat{E}$ (initialized as $\hat{E}$ = \emptyset), if the set \hat{E} \union e is independent.
 If $|\hat{E}|$ = 6|V|-6 at some point, or all edges have been iterated over, the rigidity of the graph is determined (on whether the graph has 6|V|-6 edges).
 
 This is done via the [[pebble game]] mentioned below.
-** pebble game
-For the three-dimensional case, a pebble game is instantiated on the empty graph D=(V,$\emptyset$).
+** pebble game implementation
+For the three-dimensional case, a [[pebble game]] is instantiated on the empty graph D=(V,$\emptyset$).
 Every node is associated with a number of k /pebbles/ (for the /k/-pebble game[fn:2]).
 For inserting edges the following moves / operations can be performed:
 
@@ -49,6 +47,7 @@ If there are not enough pebbles in u, an edge uv \in E can only be inserted if a
 #+begin_quote
 Find a path to a vertex w with a free pebble
 Remove the pebble on w and invert the edges along the directed path to w
+Place the pebble on u
 #+end_quote
 An edge is acquired if a path from nodes u or v to a node w with a pebble [fn:3] is found. 
 Inverting the edges means the following:
@@ -64,12 +63,14 @@ The /rigid component recognition/ is performed in order to optimize the pebble g
 
 Since a rigid graph [[rigid components][has only one sparsity component]], and a non-rigid graph can be described through its sparsity components, the pebble game can be optimized by identifying sparsity components during its run. 
 
-Since as soon as the [[pebble collection]] fails, the entire connected component is [[relation between rigidity and sparisity of graphs][sparse]] (see [[rigid components]]), and the pebble game algorithm can be modified to the following:
+Since as soon as the [[pebble collection]] fails, the entire connected component is [[relation between rigidity and sparisity of graphs][sparse]] (see [[rigid components]]).
+The component then is the union of all blocks containing the nodes u and v.
+The pebble game algorithm can thus be modified to the following:
 
 #+begin_src python
 for all edges e=uv:
 	u,v already in the same component: reject edge
-	peb(u)+peb(v) \geq l+1: 
+	peb(u)+peb(v) >= l+1: 
 		insert edge in D
 		reduce peb(u) or peb(v) by 1
 		orient edge in D
@@ -82,9 +83,9 @@ for all edges e=uv:
 
 In order to find the components u & v are part of, construct the vertex set V^{\prime\prime} as follows:
 #+begin_src python
-V^{\prime\prime} = \emptyset
+V'' = {}
 for all vertices w not reachable from u or v:
-	if w has a pebble: add all nodes that can reach w to V^{\prime\prime}
+	if w has a pebble: add all nodes that can reach w to V''
 #+end_src
 The component of u and v now is V\V^{\prime\prime}, since V^{\prime\prime} is the set of nodes a pebble can be transported to.
 Thus the set V\V^{\prime\prime} needs to be rigid. This set is maximal, since all nodes not in this set can acquire pebbles.
@@ -114,8 +115,13 @@ The /pdb test graphs/ are real-world molecular graphs taken from the [[www.rcsb.
 
 *** miscellaneous test graphs
 These are a class of graphs that were used to test some key ideas.
-They were small, manually constructed graphs intended to test specific behaviour of the program.
- 
+These can be separated in two kinds of graphs.
+The [[manually constructed graphs][first class]] of test graphs were small, manually constructed graphs intended to test specific behaviour of the program.
+The [[automatically constructed graphs][second class]] of test graphs were larger, automatically generated graphs exhibitng certain characteristics.
+**** manually constructed graphs
+These test graphs can be found in ...
+**** automatically constructed graphs
+This class of graphs were constructed through...
 ** graph embedding
 The program aims to solve the [[https://scholar.google.com/citations?view_op=view_citation&hl=es&user=quMILWkAAAAJ&citation_for_view=quMILWkAAAAJ:IjCSPb-OGe4C][molecule problem]] for a given graph, that is to find a realization p:V \to \mathbb{R}^{3}.
 In order to achieve this, the force field embedding F(p) = \sum_{e_{ij} \in E} (|p_{i}-p_{j}|^2 - d_{ij}^2)^2 is minimized, where
@@ -190,6 +196,32 @@ A [[http://arxiv.org/pdf/math/0702129.pdf][pebble game]] is an algorithm to dete
 Pebble games are parameterized by two parameters /k/ and /l/, and are used to find [[(k,l)-sparsity independence][(k,l)-sparse indepence sets]].
 The pebble game balances the degrees of freedom[fn:1] and the constrains introduced through the introduction of edges. 
 
+Within each step of the pebble game the following equalities hold for all vertices v:
+ - peb(v)+span(v)+out(v)=k
+ - peb(v^{\prime})+span(V^{\prime})+out(V^{\prime})=k*|V^{\prime}|
+ - peb(v^{\prime})+out(V^{\prime}) \geq l
+ - span(V^{\prime}) \leq k*|V^{\prime}|-l
+peb(v): number of pebbles in v
+span(V^{\prime}): number of edges spanned in D by vertex set V^{\prime} 
+out(V^{\prime}): number of edges pointing from V^{\prime} to V\V^{\prime}
+
+The equalities noted above guarantee that every no step of the pebble game violates [[(k,l)-sparsity]] (if direction of edges are ignored).
+Thus, in every step the pebble game generates an independent edge set.
+
+The invariants listed above also guarantee that the following equality holds:
+
+V^{\prime} spans a [[block]] \Leftrightarrow peb(V^{\prime}) + out(V^{\prime}) = l
+
+Furthermore the following holds:
+
+e=uv \cup E(D) independent and peb(u)+peb(v) < l+1 \Rightarrow \exists pebble in Reach(u) \cup Reach(v) that can be transported to u or v
+
+As well as the following corollary:
+
+An edge e is inserted in D \Leftrightarrow e \cup E(D) is independent
+
+\amssymb{\Rrightarrow} the /(k,l)-pebble game/ recognizes [[(k,l)-sparsity independence]]
+
 ** rigid components
 Since [[blocks]] are rigid subgraphs already, the [[pebble game]] can be optimized by identifying whether the pebble collection part of the algorithm tries to determine whether the edge under consideration should be inserted in a [[block]].
 In this case, the edge will be rejected, since the block is a rigid subgraph already, and the pebble collection step will not yield any new information.
@@ -203,8 +235,8 @@ Every sparsity component is connected and every sparsity component has exactly l
 
 Thus, as soon as the [[pebble collection]] fails, the entire connected component is [[relation between rigidity and sparisity of graphs][sparse]], and no edges in the same connected component need to be considered anymore.
 ** construction of minimally rigid subgraphs
-Since G(V,E) is a graph matroid, it can be constrcuted through a greedy algorithm in order to construct the maximal edge set \hat{E}.
-In order to test the independence of the set $\hat{E} \union$ e, the (6,6)-[[pebble game]] is used, which determines the independence of the given edge set.
+Since G(V,E) is a graph matroid, it can be constrcuted through a greedy algorithm in order to construct the maximal edge set $\hat{E}$.
+In order to test the independence of the set $\hat{E}$ \cup e, the (6,6)-[[pebble game]] is used, which determines the independence of the given edge set.
 
 ** relation between rigidity and sparsity of graphs
 The connection between rigidity and sparsity of graphs is as follows:
@@ -214,23 +246,52 @@ whereas the edges in F\E are redundant edges that only cause (mechanical) stress
 
 As such, E is a (k,l)-sparsity matroid (a basis).
 
+** relation between rigidity and graph embedding
+[[rigid]] constructions yield unique graph embeddings. 
+Since flexible (non-rigid) graph embeddings exhibit a degree of freedom, flexible graph yield an infinite number of graph embeddings.
+This is the motivation for acquiring rigid subgraphs of the given graphs.
+
 ** block construction
 For [[blocks]] the following equivalence holds:
 V^{\prime} spans a block \Leftrigharrow #pebbles in V^{\prime} + #number of edges from V^{\prime} to V\V^{\prime} = l.
 
+Since blocks are already rigid subgraphs, all (potential) edges to be inserted in them will be rejected during the pebble game.
+As this test is computationally the most expensive part of the program (especially for graphs with many edges), the recognition of [[sparsity-component]]s is of importance.
+If a graph is rigid, it only consists of one block, and if a graph is flexible, the blocks are sparsity components.
+
+Thus, the pebble game is improved by identifying sparsity components during the run of the pebble game.
+For this, consider the following Lemma:
+
+\forall l > 0 every (k,l)-sparsity component is connected.
+If V\prime is a (k,l)-sparsity component V\prime has exactly l pebbles.
+
+This also means that if the pebbles are a complete set, this set is minimally rigid.
+
 * Implementation
 * Glossary
+** (k,l)-sparsity
+A graph G=(V,E) is called /(k,l)-sparse/ if
+ - Every vertex set V^{\prime} \subset V spans at most |E^{\prime}| \leq k*|V^{\prime}|-l edges on E(V^{\prime})={e \in V | e=xy, x,y \in V^{\prime}
+ - |E|=k*|V|-l
 ** block
-A /block/ is defined as a (k,l)-sparse independend subgraph G^{\prime} with |E^{\prime}|=k*|V^{\prime}|-l edges (thus a (k,l)-sparsity rigid ((k,l)-tight) subgraph).
+A /(k,l)-block/ is defined as a (k,l)-sparse independend subgraph G^{\prime} with |E^{\prime}|=k*|V^{\prime}|-l edges (thus a (k,l)-sparsity rigid ((k,l)-tight) subgraph).
 ** sparsity-component
 A /(k,l)-sparsity component/ is a block that is maximal wrt. a vertex set, meaning that it does not contain another block itself.
 ** (k,l)-sparsity independence
 An edge set E is called (k,l)-sparsity-independent if \forall B \subset E:
-
 $|B| \leq k*|V(B)|-l$ with V(B) as node set spanned by B
 ** component
 A /component/ of a graph G is an induced subgraph $\hat{G}=(\hat{V}, \hat{E})$ of vertices v \in $\hat{V}$ such that \forall u,v \in $\hat{V}$ either uv \in $\hat{E}$ or vu \in $\hat{E}$, and if uv \in E and vu \in E, uv \in $\hat{E}$ and vu \in $\hat{E}$
+** rigidity
+A framework (G,p) of a graph G=(V,E) and a configuration p:V \to \mathbb{R}^{d} is called /rigid/ if \nexists continuous deformation p /to p such that all distances (edge lengths) in G are conserved.
 
+A graph G is called minimally rigid if (G,p) is rigid and G is not /redundant rigid/, i.e. the removal of an edge leads to a flexible graph (\exists continuous deformation p /to p such that all distances (edge lengths) in G are conserved).
+** (k,l)-rigidity
+A graph G=(V,F) is called /(k,l)-rigid/ \Leftrightarrow G has a spanning [[(k,l)-sparsity][(k,l)-sparse]] subgraph G=(V,E), E \subset F
+
+The edges e \in F\E are called /redundant/ edges.
+
+[fn:0] modulo congruency relations in $\mathbb{R}$^{3} (displacing, rotation and reflection)
 [fn:1] In 3D space, there are 6 degrees of freedom, namely three translations (one for each dimension of the space), two rotations (along the xy-plane and the yz-plane), as well as the reflection
 [fn:2] where k=6 for (6,6)-sparsity graphs which are used in the three-dimensional case
 [fn:3] i.e. w \in Reach(u,v) = {\hat{w} | \exists e_{1},....,e_{k} with e_{1}...e_{k} form a directed path from \hat{w} to u or \hat{w} to v, i.e. target(e_{k}) = u \vee target(e_{k}) = v}
