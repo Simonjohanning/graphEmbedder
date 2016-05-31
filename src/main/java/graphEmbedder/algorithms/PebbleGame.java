@@ -61,8 +61,10 @@ public class PebbleGame{
                     }
                     //if not enough pebbles could be acquired do nothing (reject edge)
                 }
-            }
-            //if nodes are already in the same component, do nothing (reject edge)
+            }//if nodes are already in the same component, do nothing (reject edge)
+            //check for completeness condition
+            if(independentGraph.getEdges().size() >= configuration.getK()*independentGraph.getNodes().size() - configuration.getL()) break;
+
         }
         return independentGraph;
     }
