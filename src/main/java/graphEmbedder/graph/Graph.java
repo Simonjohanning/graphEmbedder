@@ -1,5 +1,6 @@
 package graphEmbedder.graph;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Collection;
@@ -11,11 +12,14 @@ public class Graph{
     HashSet<Node> nodes;
     HashSet<Edge> edges;
     HashSet<Component> components;
+    HashMap<Node, HashSet<Node>> neighbours;
 
     public Graph(HashSet<Node> nodes, HashSet<Edge> edges) {
         this.nodes = nodes;
         this.edges = edges;
         initializeComponents();
+        this.neighbours = new HashMap<>(nodes.size());
+        setNeighbours();
     }
 
     public Graph(Collection<Node> nodes, HashSet<Edge> edges) {
@@ -26,6 +30,8 @@ public class Graph{
         this.nodes = nodeSet;
         this.edges = edges;
         initializeComponents();
+        this.neighbours = new HashMap<>(nodes.size());
+        setNeighbours();
     }
 
     public Graph(Collection<Node> nodes, HashSet<Edge> edges, HashSet<Component> components) {
@@ -36,6 +42,20 @@ public class Graph{
         this.nodes = nodeSet;
         this.edges = edges;
         this.components = components;
+        this.neighbours = new HashMap<>(nodes.size());
+        setNeighbours();
+    }
+
+    private void setNeighbours() {
+        //initialize neighbour list
+        for(Node currentNode : nodes){
+            HashSet<Node> emptyNeighbourSet = new HashSet<>();
+            neighbours.put(currentNode, emptyNeighbourSet);
+        }
+        //set target of each edge as neighbour of each node
+        for(Edge currentEdge : edges){
+            neighbours.get(currentEdge.getSource()).add(currentEdge.getTarget());
+        }
     }
 
     public HashSet<Node> getNodes() {
@@ -63,6 +83,32 @@ public class Graph{
             components.add(newComponent);
         }
         edges.add(edgeToAdd);
+        neighbours.get(edgeToAdd.getSource()).add(edgeToAdd.getTarget());
+    }
+
+    public void invertEdge(Edge edgeToInvert) throws IllegalArgumentException{
+        if(!edges.contains(edgeToInvert)) throw new IllegalArgumentException("The edge to be inverted doesn't exist!!");
+        edges.remove(edgeToInvert);
+        edges.add(new Edge(edgeToInvert.getTarget(), edgeToInvert.getSource()));
+        neighbours.get(edgeToInvert.getSource()).remove(edgeToInvert.getTarget());
+        neighbours.get(edgeToInvert.getTarget()).add(edgeToInvert.getSource());
+    }
+
+    public void invertEdge(Node sourceNode, Node targetNode) throws IllegalArgumentException{
+        boolean edgeFound = false;
+        Edge foundEdge = null;
+        for(Edge currentEdge : edges){
+            if((currentEdge.getSource() == sourceNode) && (currentEdge.getTarget() == targetNode)){
+                foundEdge = currentEdge;
+                edgeFound = true;
+                break;
+            }
+        }
+        if(!edgeFound) throw new IllegalArgumentException("The edge to be inverted doesn't exist!!");
+        edges.remove(foundEdge);
+        edges.add(new Edge(targetNode, sourceNode));
+        neighbours.get(sourceNode).remove(targetNode);
+        neighbours.get(targetNode).add(sourceNode);
     }
 
     private void initializeComponents(){
@@ -88,4 +134,7 @@ public class Graph{
         }
     }
 
+    public HashMap<Node, HashSet<Node>> getNeighbours() {
+        return neighbours;
+    }
 }

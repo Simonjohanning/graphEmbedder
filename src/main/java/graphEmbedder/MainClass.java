@@ -1,7 +1,13 @@
 package graphEmbedder;
 
+import graphEmbedder.IO.PebbleGameReader;
+import graphEmbedder.algorithms.PebbleGame;
+import graphEmbedder.configuration.GraphConfiguration;
+import graphEmbedder.configuration.PebbleGameConfiguration;
+import graphEmbedder.graph.Graph;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -15,12 +21,30 @@ import graphEmbedder.IO.ConfigLoader;
  */
 public class MainClass{
 
+    private static final String PATHPREFIX = "src/main/resources/inputGraphs/";
+
     private static Logger initLogger = LogManager.getLogger("initLogger");
     private static Logger initConsoleLogger = LogManager.getLogger("initConsoleLogger");
     private static Logger debugLogger = LogManager.getLogger("debugLogger");
 
     public static void main(final String[] args) throws Exception {
-        HashMap<String, String> configurations;
+        HashMap<String, Object> configurations = loadConfiguration(args);
+
+        HashMap<String, Object> pgConfigurationMap = (HashMap<String, Object>) configurations.get("Pebble game configuration");
+        PebbleGameConfiguration pgconf = new PebbleGameConfiguration(pgConfigurationMap);
+        initConsoleLogger.info("Loaded pebble game information with k={}, l={}", pgconf.getK(), pgconf.getL());
+        PebbleGame pebbleGame = new PebbleGame(pgconf);
+
+        HashMap<String, Object> graphConfigurationMap = (HashMap<String, Object>) configurations.get("Graph configuration");
+        GraphConfiguration graphConfig = new GraphConfiguration(graphConfigurationMap);
+        graphConfig.setPathPrefix(PATHPREFIX);
+        Graph graph = PebbleGameReader.readPebbleGameInformation(graphConfig);
+        Graph minimalRigidGraph = pebbleGame.constructMinimallyRigidSubgraph(graph);
+        initConsoleLogger.info("original graph has {} edges, where minimalRigidGraph has {} edges ",graph.getEdges().size(), minimalRigidGraph.getEdges().size());
+        initLogger.info("Initialization complete");
+	}
+
+    private static HashMap<String, Object> loadConfiguration(String[] args) throws IOException, Exception{
         //try to set up the configuration Hashmaps
         try{
             String configPath = "";
@@ -28,16 +52,16 @@ public class MainClass{
                 if(args[i].equals("-config") && (i+1) < args.length){
                     configPath = args[i+1].replaceAll("\\s+","");
                     if(configPath.length()> 0) {
-                        if (!configPath.substring(configPath.length() - 1).equals("\\")) {
+                        /*if (!configPath.substring(configPath.length() - 1).equals("\\")) {
                             configPath = configPath+"\\";
-                        }
+                        }*/
                     }
                     break;
                 }
             }
             //TODO just load default if no valid path provided
             if(configPath!=null){
-                configurations = loadConfigurations(configPath);
+                return ConfigLoader.loadConfiguration(configPath);
             }else{
                 throw new Exception("No -config argument was provided!!");
             }
@@ -48,30 +72,7 @@ public class MainClass{
             e.printStackTrace();
             throw e;
         }
-        initLogger.info("Initialization complete");
-	}
-
-    /**
-     * Load the configurations in the target/configuration/configuration.json file into the returned map
-     *
-     * @param configPath the path where the configuration folder is located
-     * @return A hashmap following the structure of the configuration JSON-file, in order for the configurationMaps to access the corresponding configuration files
-     * @throws IOException Thrown when an IO-Error occurs during reading the configuration file (and default configurations will be loaded)
-     */
-    private static HashMap<String, String> loadConfigurations(String configPath) throws IOException{
-        HashMap<String, String> configurations;
-        try {
-            //load configurations using the ConfigLoader
-            configurations = ConfigLoader.loadConfigurationStringmap(configPath+"configurations/configurations.json");
-            for(String key : configurations.keySet()){
-                initLogger.info("Reading configuration: "+key+": "+configurations.get(key));
-            }
-            initLogger.info("configurations: "+configurations.toString());
-            return configurations;
-        } catch (IOException e) {
-            initLogger.error("Could not load file configurations/configurations.json. IOException: "+e);
-            e.printStackTrace();
-            throw e;
-        }
     }
+
+
 }

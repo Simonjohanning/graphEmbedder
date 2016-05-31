@@ -1,47 +1,181 @@
 package graphEmbedder.algorithms;
 
 import graphEmbedder.IO.PebbleGameReader;
+import graphEmbedder.configuration.PebbleGameConfiguration;
 import graphEmbedder.graph.*;
+import graphEmbedder.helper.*;
+import graphEmbedder.helper.GraphHelper;
 
 import java.util.*;
 
 
 public class PebbleGame{
 
-    private int k;
-    private int l;
+    private PebbleGameConfiguration configuration;
 
     public PebbleGame(int k, int l) {
-        this.k = k;
-        this.l = l;
+        configuration = new PebbleGameConfiguration(k,l);
     }
+
+    public PebbleGame(PebbleGameConfiguration configuration){
+        this.configuration = configuration;
+    }
+
+
+    public Graph constructMinimallyRigidSubgraph(Graph baseGraph){
+        Graph independentGraph = new Graph(baseGraph.getNodes(), new HashSet<Edge>());
+        HashMap<Node, Integer> pebblesPerNode = new HashMap<>(baseGraph.getNodes().size());
+        for(Node currentNode : baseGraph.getNodes()){
+            pebblesPerNode.put(currentNode, configuration.getK());
+        }
+        for(Edge edgeToAdd : baseGraph.getEdges()){
+            //only consider edges not in the same component
+            if(edgeToAdd.getSource().getAssociatedComponent() != edgeToAdd.getTarget().getAssociatedComponent()){
+                //if enough pebbles present
+                if(pebblesPerNode.get(edgeToAdd.getSource()) + pebblesPerNode.get(edgeToAdd.getTarget()) > configuration.getL()){
+                    //if a pebble is present at the source, add the original orientation of the edge
+                    if(pebblesPerNode.get(edgeToAdd.getSource()) > 0){
+                        pebblesPerNode.replace(edgeToAdd.getSource(), pebblesPerNode.get(edgeToAdd.getSource()) - 1);
+                        independentGraph.addEdge(edgeToAdd);
+                    //else take the pebble from target and orient edge from target to source
+                    }else{
+                        pebblesPerNode.replace(edgeToAdd.getTarget(), pebblesPerNode.get(edgeToAdd.getTarget()) - 1);
+                        independentGraph.addEdge(new Edge(edgeToAdd.getTarget(), edgeToAdd.getSource()));
+                    }
+                }
+                //else pebbles need to be collected
+                else{
+                    int numPebblesNeeded = configuration.getL()+1-(pebblesPerNode.get(edgeToAdd.getSource()) + pebblesPerNode.get(edgeToAdd.getTarget()));
+                    ArrayList<Path> pathsToAcquirePebblesFrom = findPebblePaths(independentGraph, edgeToAdd.getSource(), edgeToAdd.getTarget(), numPebblesNeeded, pebblesPerNode);
+                    //if enough pebble paths could be found (otherwise null)
+                    if(pathsToAcquirePebblesFrom != null) {
+                        for (Path currentPath : pathsToAcquirePebblesFrom) {
+                            //adjust number of pebbles
+                            pebblesPerNode.replace(currentPath.getPathOrigin(), pebblesPerNode.get(currentPath.getPathOrigin()) + 1);
+                            pebblesPerNode.replace(currentPath.getPathTarget(), pebblesPerNode.get(currentPath.getPathTarget()) - 1);
+                            //invert edges on path
+                            for (Edge currentEdgeOnPath : currentPath.getEdgesOnPath()) {
+                                independentGraph.invertEdge(currentEdgeOnPath);
+                            }
+                        }
+                    }
+                    //if not enough pebbles could be acquired do nothing (reject edge)
+                }
+            }
+            //if nodes are already in the same component, do nothing (reject edge)
+        }
+        return independentGraph;
+    }
+
+    private ArrayList<Path> findPebblePaths(Graph independentGraph, Node source, Node target, int numPebblesNeeded, HashMap<Node, Integer> pebblesPerNode) {
+        ArrayList<Path> pathList = new ArrayList<>(numPebblesNeeded);
+        //a temporary graph with edges oriented the way they would be if pebble search is successful
+        Graph tmpGraph = new Graph(independentGraph.getNodes(), independentGraph.getEdges());
+        HashMap<Node, Integer> tmpPebblesPerNode = new HashMap<>(pebblesPerNode.size());
+        //try to acquire numPebblesNeeded for source or target
+        for(int pebbleIndex = 0; pebbleIndex<numPebblesNeeded; pebbleIndex++){
+            //try to find a pebble for source node
+            Path pathFromSource = findFreePebble(tmpGraph, source, tmpPebblesPerNode);
+            //if path exist, use this one
+            if(pathFromSource != null){
+                tmpPebblesPerNode.replace(pathFromSource.getPathOrigin(), tmpPebblesPerNode.get(pathFromSource.getPathOrigin()) + 1);
+                tmpPebblesPerNode.replace(pathFromSource.getPathTarget(), tmpPebblesPerNode.get(pathFromSource.getPathTarget()) - 1);
+                pathList.add(pathFromSource);
+                for(Edge currentEdgeOnPath : pathFromSource.getEdgesOnPath()){
+                    tmpGraph.invertEdge(currentEdgeOnPath);
+                }
+            //if this doesn't work (anymore) try to find a path for the target of the edge to be checked
+            }else{
+                Path pathFromTarget = findFreePebble(tmpGraph, target, tmpPebblesPerNode);
+                //if no path can be found for target nor source, not enough pebbles can be acquired
+                if(pathFromSource == null) return null;
+                else{
+                    tmpPebblesPerNode.replace(pathFromTarget.getPathOrigin(), tmpPebblesPerNode.get(pathFromTarget.getPathOrigin()) + 1);
+                    tmpPebblesPerNode.replace(pathFromTarget.getPathTarget(), tmpPebblesPerNode.get(pathFromTarget.getPathTarget()) - 1);
+                    pathList.add(pathFromTarget);
+                    for(Edge currentEdgeOnPath : pathFromTarget.getEdgesOnPath()){
+                        tmpGraph.invertEdge(currentEdgeOnPath);
+                    }
+                }
+            }
+        }
+        return pathList;
+    }
+
+    //tries to find a path on the component of source in tmpgraph from source to a node with a free pebble
+    private Path findFreePebble(Graph tmpGraph, Node source, HashMap<Node, Integer> tmpPebblesPerNode) {
+        HashSet<Node> potentialNodes = (HashSet) source.getAssociatedComponent().getNodesInComponent();
+        HashMap<Node, Boolean> nodeMarked = new HashMap<>(potentialNodes.size());
+        nodeMarked.put(source, true);
+        for(Node currentNode : potentialNodes){
+            if(currentNode != source) nodeMarked.put(currentNode, false);
+        }
+        HashSet<Path> potentialPaths = new HashSet<>();
+        for(Node initialNeighbour : tmpGraph.getNeighbours().get(source)){
+            Path initialPath = new Path(source, initialNeighbour, new ArrayList<>());
+            nodeMarked.replace(initialNeighbour, true);
+        }
+        while(!potentialPaths.isEmpty()){
+            for(Path currentPath : potentialPaths){
+                //if ends on a node with a pebble, a path is found
+                if(tmpPebblesPerNode.get(currentPath.getPathTarget()) > 0){
+                    return currentPath;
+                }else{
+                    //else construct path to all non-marked neighbours of current node and remove this path
+                    for(Node potentialNewNode : tmpGraph.getNeighbours().get(currentPath.getPathTarget())){
+                        //if node has not been visited yet
+                        if(!nodeMarked.get(potentialNewNode)){
+                            //extend the path to this node, remove former path and mark node
+                            potentialPaths.add(extendPath(currentPath, potentialNewNode));
+                            potentialPaths.remove(currentPath);
+                            nodeMarked.replace(potentialNewNode, true);
+                        }
+                    }
+                    potentialPaths.remove(currentPath);
+                }
+            }
+        }
+        return null;
+    }
+
+    private Path extendPath(Path currentPath, Node potentialNewNode) {
+        ArrayList<Edge> extendedPathEdgeList = currentPath.getEdgesOnPath();
+        extendedPathEdgeList.add(new Edge(currentPath.getPathTarget(), potentialNewNode));
+        return new Path(currentPath.getPathOrigin(), potentialNewNode, extendedPathEdgeList);
+    }
+
+
+
+
+    /*
+    *
+    * Marius stub
+    *
+    * */
+
+
+
+
 
     /**
      * Tests the given graph for rigidity playing the pebble game
      *
      * @return boolean to indicate whether graph is rigid (true)
      */
-    public boolean testGraphForRigidity(){
+    /*public boolean testGraphForRigidity(Graph graph){
 
-        // Datei mit Knoten- & Kanteninformationen
-//		String fileName="doubleTdoubleE";
-        String fileName="nodesInvalid";
-//		String fileName="flexibleSquare";
-//		String fileName="bigOne";
-
-        Graph graph = PebbleGameReader.readPebbleGameInformation(fileName);
-        Graph pebbleGraph = new Graph(graph.getNodes(), new HashSet<Edge>(graph.getEdges().size()));
+        Graph minimallyRigidGraph = new Graph(graph.getNodes(), new HashSet<Edge>());
+        // Datei mit Knoten- & Kanteninformatione
         // Gesamtzahl der Pebbles speichern (brauchen wir das noch)?
-        int pebbles = (graph.getNodes().size() * k);
+        int pebbles = (graph.getNodes().size() * configuration.getK());
         HashMap<Node, Integer> pebblesPerNode = new HashMap<>(graph.getNodes().size());
         for(Node currentNode : graph.getNodes()){
-            pebblesPerNode.put(currentNode, k);
+            pebblesPerNode.put(currentNode, configuration.getK());
         }
         //Check independence for every edge by acquiring pebbles
-        //TODO check how to be done
         for(Edge currentEdge : graph.getEdges()){
-            while (pebblesPerNode.get(currentEdge.getSource()) < l){
-                if(pebblesearch(node1,node2)){
+            while (pebblesPerNode.get(currentEdge.getSource()) < configuration.getL()){
+                if(pebblesearch(currentEdge.getSource(),currentEdge.getTarget(), minimallyRigidGraph, pebblesPerNode)){
                    System.out.println ("Success!");
                 }
                 else{
@@ -49,8 +183,8 @@ public class PebbleGame{
                     break;
                 }
             }
-            while(pebblesPerNode.get(currentEdge.getTarget()) < l){
-                if(pebblesearch(node2,node1)){
+            while(pebblesPerNode.get(currentEdge.getTarget()) < configuration.getL()){
+                if(pebblesearch(currentEdge.getSource(),currentEdge.getTarget(), minimallyRigidGraph, pebblesPerNode)){
                    System.out.println ("Success!");
                 }
                 else{
@@ -59,11 +193,10 @@ public class PebbleGame{
                 }
             }
             // TODO check how exactly to remove pebbles
-            // TODO MODIFY THIS CODE!!
-                if (node1.givePebbles()==2 && node2.givePebbles()==2){
-                    node1.addFollower(node2);
-                    System.out.println ("Linked from " + node1 + " to " + node2 + "!");
-                    node1.removePebble();
+                if (pebblesPerNode.get(currentEdge.getSource())==configuration.getL() && pebblesPerNode.get(currentEdge.getSource())==configuration.getL()){
+                    minimallyRigidGraph.addEdge(currentEdge);
+                    System.out.println ("Linked from " + currentEdge.getSource() + " to " + currentEdge.getTarget() + "!");
+                    pebblesPerNode.replace(currentEdge.getSource(), pebblesPerNode.get(currentEdge.getSource()) - 1);
                     pebbles--;
                 }
                 else {
@@ -71,34 +204,36 @@ public class PebbleGame{
                 }
         }
         // Falls verbleibende Gesamtzahl der Pebbles = l, ist der Graph rigid!
-        if (pebbles==l){
+        if (pebbles==configuration.getL()){
             System.out.println ("Remaining pebbles: " + pebbles + "! It's rigid!");
         }
         else{
             System.out.println ("Remaining pebbles: " + pebbles + "! It's not rigid!");
         }
-    }
+        return false;
+    }*/
 
-    //TODO change to some BFS / DFS
-    private static boolean pebblesearch (myNode n, myNode m)
+   /* private static boolean pebblesearch(Node n, Node m, Graph currentGraph, HashMap<Node, Integer> pebblesPerNode)
     {
+
         // Hilfsvariable für Anzahl der Nachfolger
-        int x = n.giveNumFol();
+        ArrayList<Node> neighboursN = GraphHelper.getNeighboursAsArrayList(currentGraph, n);
+        int x = neighboursN.size();
+        //tempNode1: n, tempNode3: m, tempNode2: neighboursN.get(x-1);
         // So lange Nachfolger vorhanden...
         while (x > 0) {
-            tempNode2 = tempNode1.giveFollower(x-1);
             // ...wird überprüft, ob Nachfolger keiner der zu verbindenden Knoten ist und Pebbles hat!
-            if (tempNode2 != tempNode3 && tempNode2.givePebbles()>0){
-                System.out.println ("Follower " + tempNode2 + " of " + tempNode1 + " has a pebble!");
+            if (neighboursN.get(x-1) != m && pebblesPerNode.get(neighboursN.get(x-1))>0){
+                System.out.println ("Follower " + neighboursN.get(x-1) + " of " + n + " has a pebble!");
                 // Falls ja: Pebbles werden verschoben, Kanten invertiert
-                tempNode2.removePebble();
-                tempNode1.addPebble();
-                tempNode2.addFollower(tempNode1);
-                tempNode1.removeFollower(x-1);
-                return true;
+                pebblesPerNode.replace(neighboursN.get(x-1), pebblesPerNode.get(neighboursN.get(x-1)) - 1);
+                pebblesPerNode.replace(n, pebblesPerNode.get(n) + 1);
+                currentGraph.invertEdge(n, neighboursN.get(x-1));
+                //true
+                break;
             }
             // Ansonsten wird überprüft, ob weitere Nachfolger existieren...
-            else if (tempNode2.giveNumFol() > 0) {
+            else if( > 0) {
                 // ...und mit diesen die Pebblesearch durchgeführt.
                 if(pebblesearch (tempNode2, tempNode3)){
                     tempNode2.removePebble();
@@ -111,11 +246,11 @@ public class PebbleGame{
             // Reduziere x, um mit nächstem Nachfolger fortzufahren
             x--;
         }
-        // Falls kein Nachfolger mehr vorhanden und nicht genug Pebbles gefunden wurden...
+        // Falls kein Nachfolger mehr vorhanden und nicht genug Pebbles gefunden wurden...*//*
         return false;
-    }
+    }*/
 
-    private static List<myComponent> findV (myNode v, List<myComponent> cl)
+    /*private static List<myComponent> findV (myNode v, List<myComponent> cl)
     {
         List<myComponent> inputComponents = new ArrayList<myComponent>();
         List<myComponent> returnComponents = new ArrayList<myComponent>();
@@ -128,6 +263,6 @@ public class PebbleGame{
             x--;
         }
         return returnComponents;
-    }
+    }*/
 
 }

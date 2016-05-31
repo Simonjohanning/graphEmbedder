@@ -3,11 +3,23 @@ package graphEmbedder.IO;
 import java.util.*;
 import java.io.*;
 
+import graphEmbedder.configuration.GraphConfiguration;
 import graphEmbedder.graph.*;
 
 public class PebbleGameReader{
 
-    public static Graph readPebbleGameInformation(String filePath){
+    public static Graph readPebbleGameInformation(GraphConfiguration graphConfiguration) throws Exception{
+        switch (graphConfiguration.getType()){
+            case "mariusGraph":
+                return readMariusGraph(graphConfiguration.getFilePath());
+            default:
+                throw new Exception("This case has not been implemented!!");
+        }
+    }
+
+    private static Graph readMariusGraph(String filePath){
+
+        System.out.println("filePath is "+filePath);
 
         // Listen von Knoten und Kanten
         List<myNode> nodes = new ArrayList<myNode>();
