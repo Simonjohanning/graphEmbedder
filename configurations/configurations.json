@@ -1,0 +1,11 @@
+{
+    "Pebble game configuration" : 
+        {
+            "k" : 6,
+            "l" : 6
+        },
+    "Graph configuration" : 
+        { "type" : "mariusGraph",
+          "fileName" : "nodesInvalid"
+        }
+}

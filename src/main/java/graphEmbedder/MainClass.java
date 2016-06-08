@@ -22,6 +22,7 @@ import graphEmbedder.IO.ConfigLoader;
 public class MainClass{
 
     private static final String PATHPREFIX = "src/main/resources/inputGraphs/";
+    private static final String DEFAULTCONFIGURATION = "configurations/configurations.json";
 
     private static Logger initLogger = LogManager.getLogger("initLogger");
     private static Logger initConsoleLogger = LogManager.getLogger("initConsoleLogger");
@@ -59,7 +60,8 @@ public class MainClass{
                     break;
                 }
             }
-            //TODO just load default if no valid path provided
+            //if config path is still "", load default one
+            configPath = DEFAULTCONFIGURATION;
             if(configPath!=null){
                 return ConfigLoader.loadConfiguration(configPath);
             }else{
