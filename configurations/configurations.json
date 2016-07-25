@@ -5,7 +5,7 @@
             "l" : 6
         },
     "Graph configuration" : 
-        { "type" : "mariusGraph",
-          "fileName" : "nodesInvalid"
+        { "type" : "pubchemGraph",
+          "fileName" : "water.sdf"
         }
 }
