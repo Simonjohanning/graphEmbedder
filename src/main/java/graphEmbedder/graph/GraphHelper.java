@@ -7,10 +7,21 @@ import java.util.HashSet;
  */
 public class GraphHelper {
 
-    public static Component unifyComponents(Component firstComponent, Component secondComponent){
+    public static Component unifyComponents(HashSet<Component> firstComponents, HashSet<Component> secondComponents){
         HashSet<Node> componentNodeList = new HashSet<>();
-        componentNodeList.addAll(firstComponent.getNodesInComponent());
-        componentNodeList.addAll(secondComponent.getNodesInComponent());
-        return new Component(componentNodeList);
+        for(Component currentComponent : firstComponents) {
+            componentNodeList.addAll(currentComponent.getNodesInComponent());
+        }
+        for(Component currentComponent : secondComponents) {
+            componentNodeList.addAll(currentComponent.getNodesInComponent());
+        }
+            return new Component(componentNodeList);
+    }
+
+    public static int getIntersectionSize(HashSet<Component> firstComponents, HashSet<Component> secondComponents){
+        boolean set1IsLarger = firstComponents.size()>secondComponents.size();
+        HashSet<Component> cloneSet = new HashSet<>(set1IsLarger ? secondComponents : firstComponents);
+        cloneSet.retainAll(set1IsLarger ? firstComponents : secondComponents);
+        return cloneSet.size();
     }
 }

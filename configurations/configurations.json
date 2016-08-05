@@ -1,11 +1,11 @@
 {
     "Pebble game configuration" : 
         {
-            "k" : 6,
-            "l" : 6
+            "k" : 2,
+            "l" : 3
         },
     "Graph configuration" : 
         { "type" : "pubchemGraph",
-          "fileName" : "water.sdf"
+          "fileName" : "flexibleSquare.sdf"
         }
 }

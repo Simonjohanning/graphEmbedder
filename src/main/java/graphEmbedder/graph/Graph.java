@@ -74,12 +74,16 @@ public class Graph{
     public void addEdge(Edge edgeToAdd) throws IllegalArgumentException{
         if(!nodes.contains(edgeToAdd.getSource()))throw new IllegalArgumentException ("Source node of the edge "+edgeToAdd.getSource().getId()+" is not in the graph yet. Edge is rejected!! Consider adding the node!!");
         else if(!nodes.contains(edgeToAdd.getTarget())) throw new IllegalArgumentException ("Target node of the edge "+edgeToAdd.getTarget().getId()+" is not in the graph yet. Edge is rejected!! Consider adding the node!!");
-        if(edgeToAdd.getSource().getAssociatedComponent() != edgeToAdd.getTarget().getAssociatedComponent()){
-            Component newComponent = GraphHelper.unifyComponents(edgeToAdd.getSource().getAssociatedComponent(), edgeToAdd.getTarget().getAssociatedComponent());
-            components.remove(edgeToAdd.getSource().getAssociatedComponent());
-            components.remove(edgeToAdd.getTarget().getAssociatedComponent());
-            edgeToAdd.getSource().setAssociatedComponent(newComponent);
-            edgeToAdd.getTarget().setAssociatedComponent(newComponent);
+        if(GraphHelper.getIntersectionSize(edgeToAdd.getSource().getAssociatedComponents(), edgeToAdd.getTarget().getAssociatedComponents())==0){
+            Component newComponent = GraphHelper.unifyComponents(edgeToAdd.getSource().getAssociatedComponents(), edgeToAdd.getTarget().getAssociatedComponents());
+            for(Component currentComponent : edgeToAdd.getSource().getAssociatedComponents()) {
+                components.remove(currentComponent);
+            }
+            for(Component currentComponent : edgeToAdd.getTarget().getAssociatedComponents()) {
+                components.remove(currentComponent);
+            }
+            edgeToAdd.getSource().addAssociatedComponent(newComponent);
+            edgeToAdd.getTarget().addAssociatedComponent(newComponent);
             components.add(newComponent);
         }
         edges.add(edgeToAdd);
@@ -119,16 +123,20 @@ public class Graph{
             singleNodeComponentNodeSet.add(node);
             Component singleNodeComponent = new Component(singleNodeComponentNodeSet);
             components.add(singleNodeComponent);
-            node.setAssociatedComponent(singleNodeComponent);
+            node.setAssociatedComponents(singleNodeComponent);
         }
         //connect components via edge
         for(Edge edge : edges){
-            if(edge.getSource().getAssociatedComponent() != edge.getTarget().getAssociatedComponent()){
-                Component newComponent = GraphHelper.unifyComponents(edge.getSource().getAssociatedComponent(), edge.getTarget().getAssociatedComponent());
-                components.remove(edge.getSource().getAssociatedComponent());
-                components.remove(edge.getTarget().getAssociatedComponent());
-                edge.getSource().setAssociatedComponent(newComponent);
-                edge.getTarget().setAssociatedComponent(newComponent);
+            if(GraphHelper.getIntersectionSize(edge.getSource().getAssociatedComponents(), edge.getTarget().getAssociatedComponents())==0){
+                Component newComponent = GraphHelper.unifyComponents(edge.getSource().getAssociatedComponents(), edge.getTarget().getAssociatedComponents());
+                for(Component currentComponent : edge.getSource().getAssociatedComponents()) {
+                    components.remove(currentComponent);
+                }
+                for(Component currentComponent : edge.getTarget().getAssociatedComponents()) {
+                    components.remove(currentComponent);
+                }
+                edge.getSource().addAssociatedComponent(newComponent);
+                edge.getTarget().addAssociatedComponent(newComponent);
                 components.add(newComponent);
             }
         }

@@ -54,20 +54,24 @@ public class GraphConverter {
             HashSet singleNodeList = new HashSet<>(1);
             Component nodeComponent = new Component(singleNodeList);
             newComponents.add(nodeComponent);
-            currentNode.setAssociatedComponent(nodeComponent);
+            currentNode.setAssociatedComponents(nodeComponent);
             nodeMap.put(currentNode.getId(), currentNode);
             associatedMyNodes.put(node, currentNode);
         }
         for(myEdge edge : edges){
             Edge currentEdge = new Edge(edge.toString(), associatedMyNodes.get(edge.getA()), associatedMyNodes.get(edge.getB()));
             edgeSet.add(currentEdge);
-            if(currentEdge.getSource().getAssociatedComponent() != currentEdge.getTarget().getAssociatedComponent()){
-                Component unifiedComponent = GraphHelper.unifyComponents(currentEdge.getSource().getAssociatedComponent(), currentEdge.getTarget().getAssociatedComponent());
-                newComponents.remove(currentEdge.getSource().getAssociatedComponent());
-                newComponents.remove(currentEdge.getTarget().getAssociatedComponent());
+            if(GraphHelper.getIntersectionSize(currentEdge.getSource().getAssociatedComponents(), currentEdge.getTarget().getAssociatedComponents())==0){
+                Component unifiedComponent = GraphHelper.unifyComponents(currentEdge.getSource().getAssociatedComponents(), currentEdge.getTarget().getAssociatedComponents());
+                for(Component currentComponent : currentEdge.getSource().getAssociatedComponents()) {
+                    newComponents.remove(currentComponent);
+                }
+                for(Component currentComponent : currentEdge.getTarget().getAssociatedComponents()) {
+                    newComponents.remove(currentComponent);
+                }
                 newComponents.add(unifiedComponent);
-                nodeMap.get(currentEdge.getSource().getId()).setAssociatedComponent(unifiedComponent);
-                nodeMap.get(currentEdge.getTarget().getId()).setAssociatedComponent(unifiedComponent);
+                nodeMap.get(currentEdge.getSource().getId()).addAssociatedComponent(unifiedComponent);
+                nodeMap.get(currentEdge.getTarget().getId()).addAssociatedComponent(unifiedComponent);
             }
         }
         return new Graph(nodeMap.values(), edgeSet, newComponents);

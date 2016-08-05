@@ -30,7 +30,7 @@ public class PebbleGame{
         }
         for(Edge edgeToAdd : baseGraph.getEdges()){
             //only consider edges not in the same component
-            if(edgeToAdd.getSource().getAssociatedComponent() != edgeToAdd.getTarget().getAssociatedComponent()){
+            if(graphEmbedder.graph.GraphHelper.getIntersectionSize(edgeToAdd.getSource().getAssociatedComponents(), edgeToAdd.getTarget().getAssociatedComponents())==0){
                 //if enough pebbles present
                 if(pebblesPerNode.get(edgeToAdd.getSource()) + pebblesPerNode.get(edgeToAdd.getTarget()) > configuration.getL()){
                     //if a pebble is present at the source, add the original orientation of the edge
@@ -106,7 +106,10 @@ public class PebbleGame{
 
     //tries to find a path on the component of source in tmpgraph from source to a node with a free pebble
     private Path findFreePebble(Graph tmpGraph, Node source, HashMap<Node, Integer> tmpPebblesPerNode) {
-        HashSet<Node> potentialNodes = (HashSet) source.getAssociatedComponent().getNodesInComponent();
+        HashSet<Node> potentialNodes = new HashSet<>();
+        for(Component currentComponent : source.getAssociatedComponents()) {
+            potentialNodes.addAll(currentComponent.getNodesInComponent());
+        }
         HashMap<Node, Boolean> nodeMarked = new HashMap<>(potentialNodes.size());
         nodeMarked.put(source, true);
         for(Node currentNode : potentialNodes){
