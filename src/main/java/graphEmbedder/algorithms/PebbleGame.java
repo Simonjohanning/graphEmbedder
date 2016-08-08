@@ -57,6 +57,15 @@ public class PebbleGame{
                             for (Edge currentEdgeOnPath : currentPath.getEdgesOnPath()) {
                                 independentGraph.invertEdge(currentEdgeOnPath);
                             }
+                            //if a pebble is present at the source, add the original orientation of the edge
+                            if(pebblesPerNode.get(edgeToAdd.getSource()) > 0){
+                                pebblesPerNode.replace(edgeToAdd.getSource(), pebblesPerNode.get(edgeToAdd.getSource()) - 1);
+                                independentGraph.addEdge(edgeToAdd);
+                                //else take the pebble from target and orient edge from target to source
+                            }else{
+                                pebblesPerNode.replace(edgeToAdd.getTarget(), pebblesPerNode.get(edgeToAdd.getTarget()) - 1);
+                                independentGraph.addEdge(new Edge(edgeToAdd.getTarget(), edgeToAdd.getSource()));
+                            }
                         }
                     }
                     //if not enough pebbles could be acquired do nothing (reject edge)
@@ -96,7 +105,7 @@ public class PebbleGame{
                     pathFromTarget = findFreePebble(tmpGraph, target, tmpPebblesPerNode);
                 }
                 //if no path can be found for target nor source, not enough pebbles can be acquired
-                if(pathFromSource == null) return null;
+                if(pathFromTarget == null) return null;
                 else{
                     tmpPebblesPerNode.replace(pathFromTarget.getPathOrigin(), tmpPebblesPerNode.get(pathFromTarget.getPathOrigin()) + 1);
                     tmpPebblesPerNode.replace(pathFromTarget.getPathTarget(), tmpPebblesPerNode.get(pathFromTarget.getPathTarget()) - 1);
