@@ -77,7 +77,10 @@ public class PebbleGame{
         //try to acquire numPebblesNeeded for source or target
         for(int pebbleIndex = 0; pebbleIndex<numPebblesNeeded; pebbleIndex++){
             //try to find a pebble for source node
-            Path pathFromSource = findFreePebble(tmpGraph, source, tmpPebblesPerNode);
+            Path pathFromSource = null;
+            if(pebblesPerNode.get(source)<configuration.getK()) {
+                pathFromSource = findFreePebble(tmpGraph, source, tmpPebblesPerNode);
+            }
             //if path exist, use this one
             if(pathFromSource != null){
                 tmpPebblesPerNode.replace(pathFromSource.getPathOrigin(), tmpPebblesPerNode.get(pathFromSource.getPathOrigin()) + 1);
@@ -88,7 +91,10 @@ public class PebbleGame{
                 }
             //if this doesn't work (anymore) try to find a path for the target of the edge to be checked
             }else{
-                Path pathFromTarget = findFreePebble(tmpGraph, target, tmpPebblesPerNode);
+                Path pathFromTarget = null;
+                if(pebblesPerNode.get(target)<configuration.getK()) {
+                    pathFromTarget = findFreePebble(tmpGraph, target, tmpPebblesPerNode);
+                }
                 //if no path can be found for target nor source, not enough pebbles can be acquired
                 if(pathFromSource == null) return null;
                 else{
