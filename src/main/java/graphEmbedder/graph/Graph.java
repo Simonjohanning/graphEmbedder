@@ -74,8 +74,8 @@ public class Graph{
     public void addEdge(Edge edgeToAdd) throws IllegalArgumentException{
         if(!nodes.contains(edgeToAdd.getSource()))throw new IllegalArgumentException ("Source node of the edge "+edgeToAdd.getSource().getId()+" is not in the graph yet. Edge is rejected!! Consider adding the node!!");
         else if(!nodes.contains(edgeToAdd.getTarget())) throw new IllegalArgumentException ("Target node of the edge "+edgeToAdd.getTarget().getId()+" is not in the graph yet. Edge is rejected!! Consider adding the node!!");
-        if(GraphHelper.getIntersectionSize(edgeToAdd.getSource().getAssociatedComponents(), edgeToAdd.getTarget().getAssociatedComponents())==0){
-            Component newComponent = GraphHelper.unifyComponents(edgeToAdd.getSource().getAssociatedComponents(), edgeToAdd.getTarget().getAssociatedComponents());
+        if(GraphHelper.getIntersectionSize(edgeToAdd.getSource().getAssociatedComponents(), edgeToAdd.getTarget().getAssociatedComponents())==0){//        Component newComponent = GraphHelper.unifyComponents(edgeToAdd.getSource().getAssociatedComponents(), edgeToAdd.getTarget().getAssociatedComponents());
+            Component newComponent = GraphHelper.unifyComponents(edgeToAdd.getSource().getAssociatedComponents(),edgeToAdd.getTarget().getAssociatedComponents());
             for(Component currentComponent : edgeToAdd.getSource().getAssociatedComponents()) {
                 components.remove(currentComponent);
             }
@@ -84,6 +84,34 @@ public class Graph{
             }
             edgeToAdd.getSource().addAssociatedComponent(newComponent);
             edgeToAdd.getTarget().addAssociatedComponent(newComponent);
+            components.add(newComponent);
+        }
+        edges.add(edgeToAdd);
+        neighbours.get(edgeToAdd.getSource()).add(edgeToAdd.getTarget());
+    }
+
+    public void addEdge(Edge edgeToAdd, HashMap<Node, Integer> pebblesPerNode) throws IllegalArgumentException{
+        if(!nodes.contains(edgeToAdd.getSource()))throw new IllegalArgumentException ("Source node of the edge "+edgeToAdd.getSource().getId()+" is not in the graph yet. Edge is rejected!! Consider adding the node!!");
+        else if(!nodes.contains(edgeToAdd.getTarget())) throw new IllegalArgumentException ("Target node of the edge "+edgeToAdd.getTarget().getId()+" is not in the graph yet. Edge is rejected!! Consider adding the node!!");
+        if(GraphHelper.getIntersectionSize(edgeToAdd.getSource().getAssociatedComponents(), edgeToAdd.getTarget().getAssociatedComponents())==0){//        Component newComponent = GraphHelper.unifyComponents(edgeToAdd.getSource().getAssociatedComponents(), edgeToAdd.getTarget().getAssociatedComponents());
+            HashSet<Node> newComponentsNodes = new HashSet<>();
+            newComponentsNodes.add(edgeToAdd.getSource());
+            newComponentsNodes.add(edgeToAdd.getTarget());
+            Component newComponent = new Component(newComponentsNodes);
+            boolean broken = false;
+            for(Component currentComponent : edgeToAdd.getSource().getAssociatedComponents()) {
+                broken = false;
+                for (Node currentNode : currentComponent.getNodesInComponent()) {
+                    if (pebblesPerNode.get(currentNode) > 0) {
+                        broken = true;
+                        break;
+                    }
+                }
+                if (!broken) {
+                    newComponent = GraphHelper.unifyComponents(newComponent,currentComponent);
+                    components.remove(currentComponent);
+                }
+            }
             components.add(newComponent);
         }
         edges.add(edgeToAdd);

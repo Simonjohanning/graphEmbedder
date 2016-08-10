@@ -15,7 +15,14 @@ public class GraphHelper {
         for(Component currentComponent : secondComponents) {
             componentNodeList.addAll(currentComponent.getNodesInComponent());
         }
-            return new Component(componentNodeList);
+        return new Component(componentNodeList);
+    }
+
+    public static Component unifyComponents(Component firstComponent, Component secondComponent){
+        HashSet<Node> componentNodeList = new HashSet<>();
+        componentNodeList.addAll(firstComponent.getNodesInComponent());
+        componentNodeList.addAll(secondComponent.getNodesInComponent());
+        return new Component(componentNodeList);
     }
 
     public static int getIntersectionSize(HashSet<Component> firstComponents, HashSet<Component> secondComponents){

@@ -4,6 +4,7 @@ import graphEmbedder.IO.PebbleGameReader;
 import graphEmbedder.algorithms.PebbleGame;
 import graphEmbedder.configuration.GraphConfiguration;
 import graphEmbedder.configuration.PebbleGameConfiguration;
+import graphEmbedder.graph.Edge;
 import graphEmbedder.graph.Graph;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,6 +43,9 @@ public class MainClass{
         Graph graph = PebbleGameReader.readPebbleGameInformation(graphConfig);
         Graph minimalRigidGraph = pebbleGame.constructMinimallyRigidSubgraph(graph);
         initConsoleLogger.info("original graph has {} edges, where minimalRigidGraph has {} edges ",graph.getEdges().size(), minimalRigidGraph.getEdges().size());
+        for (Edge edge : minimalRigidGraph.getEdges()) {
+            initConsoleLogger.info("{},{}",edge.getSource().getId(), edge.getTarget().getId());
+        }
         initLogger.info("Initialization complete");
 	}
 
