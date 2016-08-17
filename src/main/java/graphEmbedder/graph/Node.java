@@ -28,6 +28,10 @@ public class Node{
         this.associatedComponents.add(associatedComponent);
     }
 
+    public void removeAssociatedComponent(Component associatedComponent) {
+        this.associatedComponents.remove(associatedComponent);
+    }
+
     public String getLabel() {
 
         return label;

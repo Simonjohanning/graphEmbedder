@@ -4,8 +4,10 @@ import graphEmbedder.IO.PebbleGameReader;
 import graphEmbedder.algorithms.PebbleGame;
 import graphEmbedder.configuration.GraphConfiguration;
 import graphEmbedder.configuration.PebbleGameConfiguration;
+import graphEmbedder.graph.Component;
 import graphEmbedder.graph.Edge;
 import graphEmbedder.graph.Graph;
+import graphEmbedder.graph.Node;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -45,6 +47,17 @@ public class MainClass{
         initConsoleLogger.info("original graph has {} edges, where minimalRigidGraph has {} edges ",graph.getEdges().size(), minimalRigidGraph.getEdges().size());
         for (Edge edge : minimalRigidGraph.getEdges()) {
             initConsoleLogger.info("{},{}",edge.getSource().getId(), edge.getTarget().getId());
+        }
+        int x=0;
+        for (Node currentNode : minimalRigidGraph.getNodes()) {
+            initConsoleLogger.info("Components associated with node {}:",currentNode.getId());
+            for (Component currentComponent : currentNode.getAssociatedComponents()) {
+                x++;
+                initConsoleLogger.info("Component {}",x);
+                for (Node internalNode : currentComponent.getNodesInComponent()) {
+                    initConsoleLogger.info("{}",internalNode.getId());
+                }
+            }
         }
         initLogger.info("Initialization complete");
 	}

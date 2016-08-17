@@ -98,19 +98,53 @@ public class Graph{
             newComponentsNodes.add(edgeToAdd.getSource());
             newComponentsNodes.add(edgeToAdd.getTarget());
             Component newComponent = new Component(newComponentsNodes);
-            boolean broken = false;
+            boolean broken;
             for(Component currentComponent : edgeToAdd.getSource().getAssociatedComponents()) {
-                broken = false;
-                for (Node currentNode : currentComponent.getNodesInComponent()) {
-                    if (pebblesPerNode.get(currentNode) > 0) {
-                        broken = true;
-                        break;
-                    }
-                }
-                if (!broken) {
-                    newComponent = GraphHelper.unifyComponents(newComponent,currentComponent);
+                if (currentComponent.getNodesInComponent().size() == 1) {
+                    edgeToAdd.getSource().removeAssociatedComponent(currentComponent);
                     components.remove(currentComponent);
                 }
+                else {
+                    broken = false;
+                    for (Node currentNode : currentComponent.getNodesInComponent()) {
+                        if (currentNode.getId() != edgeToAdd.getSource().getId() && pebblesPerNode.get(currentNode) > 0) {
+                            broken = true;
+                            break;
+                        }
+                    }
+                    if (!broken) {
+                        newComponent = GraphHelper.unifyComponents(newComponent, currentComponent);
+                        for (Node currentNode : currentComponent.getNodesInComponent()) {
+                            currentNode.removeAssociatedComponent(currentComponent);
+                        }
+                        components.remove(currentComponent);
+                    }
+                }
+            }
+            for(Component currentComponent : edgeToAdd.getTarget().getAssociatedComponents()) {
+                if (currentComponent.getNodesInComponent().size() == 1) {
+                    edgeToAdd.getTarget().removeAssociatedComponent(currentComponent);
+                    components.remove(currentComponent);
+                }
+                else {
+                    broken = false;
+                    for (Node currentNode : currentComponent.getNodesInComponent()) {
+                        if (currentNode.getId() != edgeToAdd.getTarget().getId() && pebblesPerNode.get(currentNode) > 0) {
+                            broken = true;
+                            break;
+                        }
+                    }
+                    if (!broken) {
+                        newComponent = GraphHelper.unifyComponents(newComponent, currentComponent);
+                        for (Node currentNode : currentComponent.getNodesInComponent()) {
+                            currentNode.removeAssociatedComponent(currentComponent);
+                        }
+                        components.remove(currentComponent);
+                    }
+                }
+            }
+            for (Node currentNode : newComponent.getNodesInComponent()) {
+                currentNode.addAssociatedComponent(newComponent);
             }
             components.add(newComponent);
         }
@@ -154,7 +188,7 @@ public class Graph{
             node.setAssociatedComponents(singleNodeComponent);
         }
         //connect components via edge
-        for(Edge edge : edges){
+        /*for(Edge edge : edges){
             if(GraphHelper.getIntersectionSize(edge.getSource().getAssociatedComponents(), edge.getTarget().getAssociatedComponents())==0){
                 Component newComponent = GraphHelper.unifyComponents(edge.getSource().getAssociatedComponents(), edge.getTarget().getAssociatedComponents());
                 for(Component currentComponent : edge.getSource().getAssociatedComponents()) {
@@ -168,6 +202,7 @@ public class Graph{
                 components.add(newComponent);
             }
         }
+        */
     }
 
     public HashMap<Node, HashSet<Node>> getNeighbours() {

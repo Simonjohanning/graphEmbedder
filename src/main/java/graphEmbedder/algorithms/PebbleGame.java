@@ -13,7 +13,7 @@ import java.util.*;
 
 public class PebbleGame{
 
-    private static Logger initConsoleLogger = LogManager.getLogger("initConsoleLogger");
+    private static Logger pebbleGameLogger = LogManager.getLogger("pebbleGameLogger");
     private PebbleGameConfiguration configuration;
 
     public PebbleGame(int k, int l) {
@@ -27,6 +27,18 @@ public class PebbleGame{
 
     public Graph constructMinimallyRigidSubgraph(Graph baseGraph){
         Graph independentGraph = new Graph(baseGraph.getNodes(), new HashSet<Edge>());
+        int x=0;
+        for (Node currentNode : independentGraph.getNodes()) {
+            x=0;
+            pebbleGameLogger.info("Components associated with node {}:",currentNode.getId());
+            for (Component currentComponent : currentNode.getAssociatedComponents()) {
+                x++;
+                pebbleGameLogger.info("Component {}",x);
+                for (Node internalNode : currentComponent.getNodesInComponent()) {
+                    pebbleGameLogger.info("{}",internalNode.getId());
+                }
+            }
+        }
         HashMap<Node, Integer> pebblesPerNode = new HashMap<>(baseGraph.getNodes().size());
         for(Node currentNode : baseGraph.getNodes()){
             pebblesPerNode.put(currentNode, configuration.getK());
@@ -40,17 +52,40 @@ public class PebbleGame{
                     if(pebblesPerNode.get(edgeToAdd.getSource()) > 0){
                         pebblesPerNode.replace(edgeToAdd.getSource(), pebblesPerNode.get(edgeToAdd.getSource()) - 1);
                         independentGraph.addEdge(edgeToAdd,pebblesPerNode);
-                        initConsoleLogger.info("{},{} added",edgeToAdd.getSource().getId(), edgeToAdd.getTarget().getId());
+                        pebbleGameLogger.info("{},{} added",edgeToAdd.getSource().getId(), edgeToAdd.getTarget().getId());
+                        for (Node currentNode : independentGraph.getNodes()) {
+                            x=0;
+                            pebbleGameLogger.info("Components associated with node {}:",currentNode.getId());
+                            for (Component currentComponent : currentNode.getAssociatedComponents()) {
+                                x++;
+                                pebbleGameLogger.info("Component {}",x);
+                                for (Node internalNode : currentComponent.getNodesInComponent()) {
+                                    pebbleGameLogger.info("{}",internalNode.getId());
+                                }
+                            }
+                        }
                     //else take the pebble from target and orient edge from target to source
                     }else{
                         pebblesPerNode.replace(edgeToAdd.getTarget(), pebblesPerNode.get(edgeToAdd.getTarget()) - 1);
                         independentGraph.addEdge(new Edge(edgeToAdd.getTarget(), edgeToAdd.getSource()),pebblesPerNode);
+                        pebbleGameLogger.info("{},{} added",edgeToAdd.getTarget().getId(), edgeToAdd.getSource().getId());
+                        for (Node currentNode : independentGraph.getNodes()) {
+                            x=0;
+                            pebbleGameLogger.info("Components associated with node {}:",currentNode.getId());
+                            for (Component currentComponent : currentNode.getAssociatedComponents()) {
+                                x++;
+                                pebbleGameLogger.info("Component {}",x);
+                                for (Node internalNode : currentComponent.getNodesInComponent()) {
+                                    pebbleGameLogger.info("{}",internalNode.getId());
+                                }
+                            }
+                        }
                     }
                 }
                 //else pebbles need to be collected
                 else{
                     int numPebblesNeeded = configuration.getL()+1-(pebblesPerNode.get(edgeToAdd.getSource()) + pebblesPerNode.get(edgeToAdd.getTarget()));
-                    initConsoleLogger.info("Node {} has {} pebbles, Node {} has {} pebbles. {} pebbles needed.",edgeToAdd.getSource().getId(),pebblesPerNode.get(edgeToAdd.getSource()),edgeToAdd.getTarget().getId(),pebblesPerNode.get(edgeToAdd.getTarget()),numPebblesNeeded);
+                    pebbleGameLogger.info("Node {} has {} pebbles, Node {} has {} pebbles. {} pebbles needed.",edgeToAdd.getSource().getId(),pebblesPerNode.get(edgeToAdd.getSource()),edgeToAdd.getTarget().getId(),pebblesPerNode.get(edgeToAdd.getTarget()),numPebblesNeeded);
                     ArrayList<Path> pathsToAcquirePebblesFrom = findPebblePaths(independentGraph, edgeToAdd.getSource(), edgeToAdd.getTarget(), numPebblesNeeded, pebblesPerNode);
                     //if enough pebble paths could be found (otherwise null)
                     if(pathsToAcquirePebblesFrom != null) {
@@ -66,17 +101,39 @@ public class PebbleGame{
                             if(pebblesPerNode.get(edgeToAdd.getSource()) > 0){
                                 pebblesPerNode.replace(edgeToAdd.getSource(), pebblesPerNode.get(edgeToAdd.getSource()) - 1);
                                 independentGraph.addEdge(edgeToAdd,pebblesPerNode);
-                                initConsoleLogger.info("{},{} added",edgeToAdd.getSource().getId(), edgeToAdd.getTarget().getId());
+                                pebbleGameLogger.info("{},{} added",edgeToAdd.getSource().getId(), edgeToAdd.getTarget().getId());
+                                for (Node currentNode : independentGraph.getNodes()) {
+                                    x=0;
+                                    pebbleGameLogger.info("Components associated with node {}:",currentNode.getId());
+                                    for (Component currentComponent : currentNode.getAssociatedComponents()) {
+                                        x++;
+                                        pebbleGameLogger.info("Component {}",x);
+                                        for (Node internalNode : currentComponent.getNodesInComponent()) {
+                                            pebbleGameLogger.info("{}",internalNode.getId());
+                                        }
+                                    }
+                                }
                                 //else take the pebble from target and orient edge from target to source
                             }else{
                                 pebblesPerNode.replace(edgeToAdd.getTarget(), pebblesPerNode.get(edgeToAdd.getTarget()) - 1);
                                 independentGraph.addEdge(new Edge(edgeToAdd.getTarget(), edgeToAdd.getSource()),pebblesPerNode);
-                                initConsoleLogger.info("{},{} added",edgeToAdd.getSource().getId(), edgeToAdd.getTarget().getId());
+                                pebbleGameLogger.info("{},{} added",edgeToAdd.getTarget().getId(), edgeToAdd.getSource().getId());
+                                for (Node currentNode : independentGraph.getNodes()) {
+                                    x=0;
+                                    pebbleGameLogger.info("Components associated with node {}:",currentNode.getId());
+                                    for (Component currentComponent : currentNode.getAssociatedComponents()) {
+                                        x++;
+                                        pebbleGameLogger.info("Component {}",x);
+                                        for (Node internalNode : currentComponent.getNodesInComponent()) {
+                                            pebbleGameLogger.info("{}",internalNode.getId());
+                                        }
+                                    }
+                                }
                             }
                         }
                     }else{
                         //if not enough pebbles could be acquired do nothing (reject edge)
-                        initConsoleLogger.info("{},{} rejected",edgeToAdd.getSource().getId(), edgeToAdd.getTarget().getId());
+                        pebbleGameLogger.info("{},{} rejected",edgeToAdd.getSource().getId(), edgeToAdd.getTarget().getId());
                     }
                 }
             }//if nodes are already in the same component, do nothing (reject edge)
